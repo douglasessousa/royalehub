@@ -7,12 +7,22 @@ object LocalRepository {
     private val mockDecks = listOf(
         Deck(
             id = 1,
-            nome = "Deck 1",
+            nome = "Log Bait",
             cartas = listOf()
         ),
         Deck(
             id = 2,
-            nome = "Deck 2",
+            nome = "Splashyard",
+            cartas = listOf()
+        ),
+        Deck(
+            id = 3,
+            nome = "Corredor 2.6",
+            cartas = listOf()
+        ),
+        Deck(
+            id = 4,
+            nome = "Porcos Reais",
             cartas = listOf()
         )
     )
