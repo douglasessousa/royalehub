@@ -1,0 +1,12 @@
+package com.douglasessousa.royalehub.data.local.db
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import com.douglasessousa.royalehub.data.model.Deck
+
+@Database(entities = [Deck::class], version = 2)
+@TypeConverters(Converters::class)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun deckDao(): DeckDao
+}
