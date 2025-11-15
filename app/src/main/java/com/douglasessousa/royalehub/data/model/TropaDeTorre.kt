@@ -1,6 +1,6 @@
 package com.douglasessousa.royalehub.data.model
 
-data class TorreTroop(
+data class TropaDeTorre(
     val id: Int,
     val nome: String,
     val raridade: String,
