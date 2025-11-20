@@ -33,14 +33,14 @@ fun NavGraph(
     appViewModel: AppViewModel = viewModel()
 ) {
     NavHost(navController = navController, startDestination = Routes.Home.route) {
-        composable(Routes.Home.route) { HomeScreen(navController) } // <<< CORREÇÃO AQUI
+        composable(Routes.Home.route) { HomeScreen(navController) }
         composable(Routes.Decks.route) { DecksScreen(appViewModel, navController) }
         composable(
             route = Routes.DeckDetail.route,
             arguments = listOf(navArgument("deckId") { type = NavType.IntType })
         ) { backStackEntry ->
             val deckId = backStackEntry.arguments?.getInt("deckId") ?: -1
-            DeckDetailScreen(appViewModel, deckId)
+            DeckDetailScreen(appViewModel, deckId, navController) // Passando o NavController
         }
         composable(Routes.Cards.route) { CartasScreen(appViewModel) }
         composable(Routes.TropasDeTorre.route) { TropasDeTorreScreen(appViewModel) }

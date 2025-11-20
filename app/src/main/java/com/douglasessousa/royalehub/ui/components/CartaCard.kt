@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,23 +21,21 @@ fun CartaCard(
     modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
+        modifier = modifier // A largura agora é controlada pelo chamador
+            .aspectRatio(95f / 140f)
             .clickable(onClick = onClick)
     ) {
         if (carta != null) {
             AsyncImage(
                 model = carta.imagemUrl,
                 contentDescription = "Imagem da carta ${carta.nome}",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(95f / 140f),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         } else {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .aspectRatio(95f/140f)
                     .border(2.dp, Color.Gray, shape = MaterialTheme.shapes.medium)
             )
         }
