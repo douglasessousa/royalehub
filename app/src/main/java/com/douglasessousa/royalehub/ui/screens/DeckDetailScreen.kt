@@ -49,6 +49,7 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
     var tropaDeTorreSlot by remember { mutableStateOf<TropaDeTorre?>(null) }
 
     val cardSlots = listOf(carta1, carta2, carta3, carta4, carta5, carta6, carta7, carta8)
+    val isDeckComplete = cardSlots.all { it != null } && tropaDeTorreSlot != null
 
     var selectedSlotIndex by remember { mutableStateOf<Int?>(null) }
     var librarySelection by remember { mutableStateOf(LibrarySelection.NONE) }
@@ -135,16 +136,19 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
                             Icon(imageVector = Icons.Default.Delete, contentDescription = "Apagar Deck")
                         }
                     }
-                    IconButton(onClick = {
-                        val deckFinal = Deck(
-                            id = originalDeck?.id ?: 0,
-                            nome = deckName,
-                            cartas = cardSlots.filterNotNull(),
-                            tropaDeTorre = tropaDeTorreSlot
-                        )
-                        appViewModel.upsertDeck(deckFinal)
-                        navController.navigateUp()
-                    }) {
+                    IconButton(
+                        onClick = {
+                            val deckFinal = Deck(
+                                id = originalDeck?.id ?: 0,
+                                nome = deckName,
+                                cartas = cardSlots.filterNotNull(),
+                                tropaDeTorre = tropaDeTorreSlot
+                            )
+                            appViewModel.upsertDeck(deckFinal)
+                            navController.navigateUp()
+                        },
+                        enabled = isDeckComplete // <<< ALTERAÇÃO APLICADA AQUI
+                    ) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = "Salvar Deck")
                     }
                 }
