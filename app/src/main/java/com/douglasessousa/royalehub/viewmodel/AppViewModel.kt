@@ -41,6 +41,12 @@ class AppViewModel(private val deckDao: DeckDao) : ViewModel() {
         }
     }
 
+    fun deleteDeck(deck: Deck) {
+        viewModelScope.launch {
+            deckDao.deleteDeck(deck)
+        }
+    }
+
     private fun fetchCards() {
         viewModelScope.launch {
             try {
@@ -63,5 +69,3 @@ class AppViewModel(private val deckDao: DeckDao) : ViewModel() {
         }
     }
 }
-
-

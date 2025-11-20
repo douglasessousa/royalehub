@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,7 @@ import com.douglasessousa.royalehub.ui.components.TropaDeTorreCard
 import com.douglasessousa.royalehub.viewmodel.AppViewModel
 
 const val TOWER_SLOT_INDEX = 99
+enum class LibrarySelection { NONE, CARD, TOWER }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +51,7 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
     val cardSlots = listOf(carta1, carta2, carta3, carta4, carta5, carta6, carta7, carta8)
 
     var selectedSlotIndex by remember { mutableStateOf<Int?>(null) }
+    var librarySelection by remember { mutableStateOf(LibrarySelection.NONE) }
     var itemParaExibir by remember { mutableStateOf<Any?>(null) }
 
     LaunchedEffect(originalDeck) {
@@ -102,7 +105,7 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
             }
         }
         itemParaExibir = null
-        selectedSlotIndex = null
+        librarySelection = LibrarySelection.NONE
     }
 
     if (itemParaExibir != null) {
@@ -124,6 +127,14 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
             TopAppBar(
                 title = { Text("Editar Deck") },
                 actions = {
+                    if (originalDeck != null) {
+                        IconButton(onClick = {
+                            appViewModel.deleteDeck(originalDeck!!)
+                            navController.navigateUp()
+                        }) {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = "Apagar Deck")
+                        }
+                    }
                     IconButton(onClick = {
                         val deckFinal = Deck(
                             id = originalDeck?.id ?: 0,
@@ -132,7 +143,7 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
                             tropaDeTorre = tropaDeTorreSlot
                         )
                         appViewModel.upsertDeck(deckFinal)
-                        navController.navigateUp() // <-- NAVEGA DE VOLTA
+                        navController.navigateUp()
                     }) {
                         Icon(imageVector = Icons.Default.Done, contentDescription = "Salvar Deck")
                     }
@@ -153,31 +164,29 @@ fun DeckDetailScreen(appViewModel: AppViewModel, deckId: Int, navController: Nav
             Spacer(modifier = Modifier.height(16.dp))
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CartaCard(carta = carta1, onClick = { selectedSlotIndex = 0 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta2, onClick = { selectedSlotIndex = 1 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta3, onClick = { selectedSlotIndex = 2 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta4, onClick = { selectedSlotIndex = 3 }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta1, onClick = { selectedSlotIndex = 0; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta2, onClick = { selectedSlotIndex = 1; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta3, onClick = { selectedSlotIndex = 2; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta4, onClick = { selectedSlotIndex = 3; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CartaCard(carta = carta5, onClick = { selectedSlotIndex = 4 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta6, onClick = { selectedSlotIndex = 5 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta7, onClick = { selectedSlotIndex = 6 }, modifier = Modifier.weight(1f))
-                    CartaCard(carta = carta8, onClick = { selectedSlotIndex = 7 }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta5, onClick = { selectedSlotIndex = 4; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta6, onClick = { selectedSlotIndex = 5; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta7, onClick = { selectedSlotIndex = 6; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
+                    CartaCard(carta = carta8, onClick = { selectedSlotIndex = 7; librarySelection = LibrarySelection.CARD }, modifier = Modifier.weight(1f))
                 }
                 Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.Center) {
                     Box(modifier = Modifier.weight(1.5f))
-                    TropaDeTorreCard(tropaDeTorre = tropaDeTorreSlot, onClick = { selectedSlotIndex = TOWER_SLOT_INDEX }, modifier = Modifier.weight(1f))
+                    TropaDeTorreCard(tropaDeTorre = tropaDeTorreSlot, onClick = { selectedSlotIndex = TOWER_SLOT_INDEX; librarySelection = LibrarySelection.TOWER }, modifier = Modifier.weight(1f))
                     Box(modifier = Modifier.weight(1.5f))
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Box(modifier = Modifier.weight(1f)) {
-                if (selectedSlotIndex != null) {
-                    if (selectedSlotIndex == TOWER_SLOT_INDEX) {
-                        TowerLibraryGrid(appViewModel) { item -> itemParaExibir = item }
-                    } else {
-                        CardLibraryGrid(appViewModel) { item -> itemParaExibir = item }
-                    }
+                when (librarySelection) {
+                    LibrarySelection.CARD -> CardLibraryGrid(appViewModel) { item -> itemParaExibir = item }
+                    LibrarySelection.TOWER -> TowerLibraryGrid(appViewModel) { item -> itemParaExibir = item }
+                    LibrarySelection.NONE -> {}
                 }
             }
         }
