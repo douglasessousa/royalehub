@@ -7,7 +7,6 @@ import androidx.room.PrimaryKey
 data class Deck(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val nome: String,
-    val cartas: List<Carta>,
-    val tropaDeTorre: TropaDeTorre? = null
+    val name: String,
+    val cards: List<Card>
 )

@@ -1,7 +1,7 @@
-package com.douglasessousa.royalehub.data.local.db
+package com.douglasessousa.royalehub.data.local
 
 import androidx.room.TypeConverter
-import com.douglasessousa.royalehub.data.model.Carta
+import com.douglasessousa.royalehub.data.model.Card
 import com.douglasessousa.royalehub.data.model.TropaDeTorre
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -10,21 +10,20 @@ class Converters {
     private val gson = Gson()
 
     @TypeConverter
-    fun fromCartaList(cartas: List<Carta>?): String? {
-        if (cartas == null) {
+    fun fromCardList(cards: List<Card>?): String? {
+        if (cards == null) {
             return null
         }
-        val type = object : TypeToken<List<Carta>>() {}.type
-        return gson.toJson(cartas, type)
+        return gson.toJson(cards)
     }
 
     @TypeConverter
-    fun toCartaList(cartasString: String?): List<Carta>? {
-        if (cartasString == null) {
+    fun toCardList(cardsString: String?): List<Card>? {
+        if (cardsString == null) {
             return null
         }
-        val type = object : TypeToken<List<Carta>>() {}.type
-        return gson.fromJson(cartasString, type)
+        val type = object : TypeToken<List<Card>>() {}.type
+        return gson.fromJson(cardsString, type)
     }
 
     @TypeConverter
