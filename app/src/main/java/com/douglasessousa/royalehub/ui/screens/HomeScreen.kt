@@ -31,6 +31,24 @@ fun HomeScreen(navController: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
+                onClick = { navController.navigate(Routes.Cards.route) },
+                modifier = Modifier.width(200.dp),
+                shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
+            ) {
+                Text("Cartas", color = Color.White)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
+                onClick = { navController.navigate(Routes.TropasDeTorre.route) },
+                modifier = Modifier.width(200.dp),
+                shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+            ) {
+                Text("Tropas de Torre", color = Color.White)
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Button(
                 onClick = { navController.navigate(Routes.Decks.route) },
                 modifier = Modifier.width(200.dp),
                 shape = RectangleShape,
