@@ -4,6 +4,7 @@ import android.util.Log
 import com.douglasessousa.royalehub.api.RoyaleApiService
 import com.douglasessousa.royalehub.data.local.db.RoyaleDao
 import com.douglasessousa.royalehub.data.model.Card
+import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
 import kotlinx.coroutines.flow.Flow
@@ -13,12 +14,20 @@ class RoyaleRepository(
     private val api: RoyaleApiService
 ) {
 
-    // Busca a lista de todas as cartas na API
     suspend fun getCardsFromApi(): List<Card> {
         return try {
             api.getAllCards()
         } catch (e: Exception) {
             Log.e("RoyaleRepository", "Erro ao buscar cartas: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun getTowersFromApi(): List<Tower> {
+        return try {
+            api.getAllTowers()
+        } catch (e: Exception) {
+            Log.e("RoyaleRepository", "Erro ao buscar tropas de torre: ${e.message}")
             emptyList()
         }
     }

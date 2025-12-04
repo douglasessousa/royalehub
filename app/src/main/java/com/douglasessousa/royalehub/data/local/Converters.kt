@@ -2,7 +2,7 @@ package com.douglasessousa.royalehub.data.local
 
 import androidx.room.TypeConverter
 import com.douglasessousa.royalehub.data.model.Card
-import com.douglasessousa.royalehub.data.model.TropaDeTorre
+import com.douglasessousa.royalehub.data.model.Tower
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -27,18 +27,18 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromTropaDeTorre(tropaDeTorre: TropaDeTorre?): String? {
-        if (tropaDeTorre == null) {
+    fun fromTower(tower: Tower?): String? {
+        if (tower== null) {
             return null
         }
-        return gson.toJson(tropaDeTorre)
+        return gson.toJson(tower)
     }
 
     @TypeConverter
-    fun toTropaDeTorre(tropaDeTorreString: String?): TropaDeTorre? {
-        if (tropaDeTorreString == null) {
+    fun toTower(towerString: String?): Tower? {
+        if (towerString == null) {
             return null
         }
-        return gson.fromJson(tropaDeTorreString, TropaDeTorre::class.java)
+        return gson.fromJson(towerString, Tower::class.java)
     }
 }

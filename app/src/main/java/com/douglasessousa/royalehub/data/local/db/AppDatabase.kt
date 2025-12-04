@@ -9,7 +9,7 @@ import com.douglasessousa.royalehub.data.local.Converters
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
 
-@Database(entities = [Deck::class, MatchResult::class], version = 1, exportSchema = false)
+@Database(entities = [Deck::class, MatchResult::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -26,7 +26,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "royale_hub_database"
                 )
-                    // .fallbackToDestructiveMigration() // Apaga os dados ao mudar a versão do banco
+                    .fallbackToDestructiveMigration() // Apaga os dados ao mudar a versão do banco
                     .build()
                 INSTANCE = instance
                 instance
