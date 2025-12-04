@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.douglasessousa.royalehub.data.model.Card
+import com.douglasessousa.royalehub.ui.components.CardView
 import com.douglasessousa.royalehub.ui.theme.TextGray
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,7 +99,7 @@ fun CreateDeckScreen(
                 }
             } else {
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 60.dp),
+                    columns = GridCells.Adaptive(minSize = 75.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.weight(1f)
@@ -148,35 +149,19 @@ fun SelectedCardsRow(selectedCards: List<Card>, onRemove: (Card) -> Unit) {
 
 @Composable
 fun CardSlot(card: Card?, onClick: (Card?) -> Unit) {
-    Box(
+    CardView(
+        card = card,
+        onClick = { onClick(card) },
         modifier = Modifier
-            .size(width = 60.dp, height = 75.dp)
+            .width(75.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick(card) }
-            .then(
-                if (card == null) Modifier.background(Color.LightGray.copy(alpha = 0.3f))
-                else Modifier
-            ),
-        contentAlignment = Alignment.Center
-    ) {
-        if (card != null) {
-            AsyncImage(
-                model = card.imageUrl,
-                contentDescription = card.name,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-        } else {
-            Text("+", fontSize = 24.sp, color = TextGray)
-        }
-    }
+    )
 }
 
 @Composable
 fun CardItem(card: Card, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
-            .aspectRatio(0.8f)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .then(
@@ -184,12 +169,7 @@ fun CardItem(card: Card, isSelected: Boolean, onClick: () -> Unit) {
                 else Modifier
             )
     ) {
-        AsyncImage(
-            model = card.imageUrl,
-            contentDescription = card.name,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Fit
-        )
+        CardView(card = card, onClick = { onClick() })
         if (isSelected) {
             Box(
                 modifier = Modifier
