@@ -39,7 +39,24 @@ fun CreateDeckScreen(
     val deckName by viewModel.deckName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
+    var itemToShowInDialog by remember { mutableStateOf<Any?>(null) }
+
     val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
+
+    if (itemToShowInDialog != null) {
+        ItemInfoDialog(
+            item = itemToShowInDialog!!,
+            isCardInDeck = { selectedCards.contains(it) },
+            isTowerSelected = { selectedTower == it },
+            onDismiss = { itemToShowInDialog = null },
+            onConfirm = {
+                when (val item = itemToShowInDialog) {
+                    is Card -> viewModel.toggleCardSelection(item)
+                    is Tower -> viewModel.toggleTowerSelection(item)
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -80,10 +97,10 @@ fun CreateDeckScreen(
                 item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Cartas Selecionadas", style = MaterialTheme.typography.titleMedium) }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
 
-                item(span = { GridItemSpan(maxLineSpan) }) { SelectedCardsRow(selectedCards) { card -> viewModel.toggleCardSelection(card) } }
+                item(span = { GridItemSpan(maxLineSpan) }) { SelectedCardsRow(selectedCards) { card -> itemToShowInDialog = card } }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
-                item(span = { GridItemSpan(maxLineSpan) }) { SelectedTowerRow(selectedTower = selectedTower) { tower -> viewModel.toggleTowerSelection(tower) } }
+                item(span = { GridItemSpan(maxLineSpan) }) { SelectedTowerRow(selectedTower) { tower -> itemToShowInDialog = tower } }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
                 item(span = { GridItemSpan(maxLineSpan) }) { HorizontalDivider() }
@@ -110,7 +127,7 @@ fun CreateDeckScreen(
                             items(availableTowers) { tower ->
                                 val isSelected = selectedTower == tower
                                 TowerItem(tower = tower, isSelected = isSelected) {
-                                    viewModel.toggleTowerSelection(tower)
+                                    itemToShowInDialog = tower
                                 }
                             }
                         }
@@ -123,7 +140,7 @@ fun CreateDeckScreen(
                     items(availableCards) { card ->
                         val isSelected = selectedCards.contains(card)
                         CardItem(card = card, isSelected = isSelected) {
-                            viewModel.toggleCardSelection(card)
+                            itemToShowInDialog = card
                         }
                     }
                 }
@@ -144,24 +161,24 @@ fun CreateDeckScreen(
 }
 
 @Composable
-fun SelectedCardsRow(selectedCards: List<Card>, onRemove: (Card) -> Unit) {
+fun SelectedCardsRow(selectedCards: List<Card>, onCardClick: (Card) -> Unit) {
     Column {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             for (i in 0..3) {
-                CardSlot(card = selectedCards.getOrNull(i), onClick = { c -> c?.let { onRemove(it) } })
+                CardSlot(card = selectedCards.getOrNull(i), onClick = { c -> c?.let(onCardClick) })
             }
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             for (i in 4..7) {
-                CardSlot(card = selectedCards.getOrNull(i), onClick = { c -> c?.let { onRemove(it) } })
+                CardSlot(card = selectedCards.getOrNull(i), onClick = { c -> c?.let(onCardClick) })
             }
         }
     }
 }
 
 @Composable
-fun SelectedTowerRow(selectedTower: Tower?, onRemove: (Tower) -> Unit) {
+fun SelectedTowerRow(selectedTower: Tower?, onTowerClick: (Tower) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
@@ -170,9 +187,7 @@ fun SelectedTowerRow(selectedTower: Tower?, onRemove: (Tower) -> Unit) {
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))
-        TowerSlot(tower = selectedTower, onClick = { tower ->
-            tower?.let { onRemove(it) }
-        })
+        TowerSlot(tower = selectedTower, onClick = { t -> t?.let(onTowerClick) })
     }
 }
 
@@ -250,4 +265,50 @@ fun TowerItem(tower: Tower, isSelected: Boolean, onClick: () -> Unit) {
             }
         }
     }
+}
+
+@Composable
+private fun ItemInfoDialog(
+    item: Any,
+    isCardInDeck: (Card) -> Boolean,
+    isTowerSelected: (Tower) -> Boolean,
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val title: String
+    val details: String
+    val isItemInDeck: Boolean
+
+    when (item) {
+        is Card -> {
+            title = item.name
+            details = "Elixir: ${item.elixir}\nRaridade: ${item.rarity}"
+            isItemInDeck = isCardInDeck(item)
+        }
+        is Tower -> {
+            title = item.name
+            details = "Raridade: ${item.rarity}"
+            isItemInDeck = isTowerSelected(item)
+        }
+        else -> return
+    }
+
+    val buttonText = if (isItemInDeck) "Remover do Deck" else "Adicionar ao Deck"
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(text = title) },
+        text = { Text(text = details) },
+        confirmButton = {
+            Button(onClick = {
+                onConfirm()
+                onDismiss()
+            }) {
+                Text(buttonText)
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) { Text("Fechar") }
+        }
+    )
 }
