@@ -90,7 +90,7 @@ class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
     // Salva no database
     fun saveDeck(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            if (_deckName.value.isNotBlank() && _selectedCards.value.size == 8) {
+            if (_deckName.value.isNotBlank() && _selectedCards.value.size == 8 && _selectedTower.value != null) {
                 val newDeck = Deck(
                     name = _deckName.value,
                     cards = _selectedCards.value,

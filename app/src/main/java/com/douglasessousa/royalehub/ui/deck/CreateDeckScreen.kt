@@ -5,8 +5,11 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,13 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import com.douglasessousa.royalehub.data.model.Card
+import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.ui.components.CardView
-import com.douglasessousa.royalehub.ui.theme.TextGray
+import com.douglasessousa.royalehub.ui.components.TowerView
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,28 +34,20 @@ fun CreateDeckScreen(
 ) {
     val availableCards by viewModel.availableCards.collectAsState()
     val selectedCards by viewModel.selectedCards.collectAsState()
+    val availableTowers by viewModel.availableTowers.collectAsState()
+    val selectedTower by viewModel.selectedTower.collectAsState()
     val deckName by viewModel.deckName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
-    val canSave = deckName.isNotBlank() && selectedCards.size == 8
+    val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Novo Deck",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    )
-                },
+                title = { Text("Novo Deck", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimary) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Voltar",
-                            tint = MaterialTheme.colorScheme.onPrimary
-                        )
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Voltar", tint = MaterialTheme.colorScheme.onPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -67,43 +60,66 @@ fun CreateDeckScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            OutlinedTextField(
-                value = deckName,
-                onValueChange = { viewModel.updateDeckName(it) },
-                label = { Text("Nome do Deck (Ex: Log Bait)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Cartas Selecionadas (${selectedCards.size}/8)",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            SelectedCardsRow(selectedCards) { card ->
-                viewModel.toggleCardSelection(card)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            if (isLoading) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(4),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.weight(1f)
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    OutlinedTextField(
+                        value = deckName,
+                        onValueChange = { viewModel.updateDeckName(it) },
+                        label = { Text("Nome do Deck (Ex: Log Bait)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
                 }
-            } else {
-                LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 75.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
+
+                item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Cartas Selecionadas", style = MaterialTheme.typography.titleMedium) }
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
+
+                item(span = { GridItemSpan(maxLineSpan) }) { SelectedCardsRow(selectedCards) { card -> viewModel.toggleCardSelection(card) } }
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
+
+                item(span = { GridItemSpan(maxLineSpan) }) { SelectedTowerRow(selectedTower = selectedTower) { tower -> viewModel.toggleTowerSelection(tower) } }
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
+
+                item(span = { GridItemSpan(maxLineSpan) }) { HorizontalDivider() }
+                item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
+
+                if (isLoading) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 32.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                } else {
+                    item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Escolha sua Torre", style = MaterialTheme.typography.titleMedium) }
+                    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            items(availableTowers) { tower ->
+                                val isSelected = selectedTower == tower
+                                TowerItem(tower = tower, isSelected = isSelected) {
+                                    viewModel.toggleTowerSelection(tower)
+                                }
+                            }
+                        }
+                    }
+                    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
+
+                    item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Escolha suas Cartas", style = MaterialTheme.typography.titleMedium) }
+                    item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
+
                     items(availableCards) { card ->
                         val isSelected = selectedCards.contains(card)
                         CardItem(card = card, isSelected = isSelected) {
@@ -119,10 +135,7 @@ fun CreateDeckScreen(
                 onClick = { viewModel.saveDeck(onSuccess = onBack) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 enabled = canSave,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = Color.LightGray
-                )
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, disabledContainerColor = Color.LightGray)
             ) {
                 Text("Salvar Deck", style = MaterialTheme.typography.bodyLarge)
             }
@@ -148,10 +161,36 @@ fun SelectedCardsRow(selectedCards: List<Card>, onRemove: (Card) -> Unit) {
 }
 
 @Composable
+fun SelectedTowerRow(selectedTower: Tower?, onRemove: (Tower) -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        // Add 3 invisible spacers to push the TowerSlot to the 4th position
+        Spacer(Modifier.width(75.dp))
+        Spacer(Modifier.width(75.dp))
+        Spacer(Modifier.width(75.dp))
+        TowerSlot(tower = selectedTower, onClick = { tower ->
+            tower?.let { onRemove(it) }
+        })
+    }
+}
+
+@Composable
 fun CardSlot(card: Card?, onClick: (Card?) -> Unit) {
     CardView(
         card = card,
         onClick = { onClick(card) },
+        modifier = Modifier
+            .width(75.dp)
+            .clip(RoundedCornerShape(8.dp))
+    )
+}
+@Composable
+fun TowerSlot(tower: Tower?, onClick: (Tower?) -> Unit) {
+    TowerView(
+        tower = tower,
+        onClick = { onClick(tower) },
         modifier = Modifier
             .width(75.dp)
             .clip(RoundedCornerShape(8.dp))
@@ -162,6 +201,7 @@ fun CardSlot(card: Card?, onClick: (Card?) -> Unit) {
 fun CardItem(card: Card, isSelected: Boolean, onClick: () -> Unit) {
     Box(
         modifier = Modifier
+            .size(width = 93.dp, height = 137.dp)
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
             .then(
@@ -170,6 +210,35 @@ fun CardItem(card: Card, isSelected: Boolean, onClick: () -> Unit) {
             )
     ) {
         CardView(card = card, onClick = { onClick() })
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun TowerItem(tower: Tower, isSelected: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(width = 93.dp, height = 137.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .then(
+                if (isSelected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                else Modifier
+            )
+    ) {
+        TowerView(
+            tower = tower, 
+            onClick = { onClick() }
+        )
         if (isSelected) {
             Box(
                 modifier = Modifier
