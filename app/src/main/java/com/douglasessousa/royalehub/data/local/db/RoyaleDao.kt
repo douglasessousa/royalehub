@@ -16,6 +16,12 @@ interface RoyaleDao {
     @Query("SELECT * FROM decks")
     fun getDecks(): Flow<List<Deck>>
 
+    @Query("SELECT * FROM decks")
+    suspend fun getAllDecksSuspend(): List<Deck>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM decks WHERE name = :name LIMIT 1)")
+    suspend fun deckExistsByName(name: String): Boolean
+
     // Pega um deck específico pelo ID
     @Query("SELECT * FROM decks WHERE id = :id")
     suspend fun getDeckById(id: Int): Deck?

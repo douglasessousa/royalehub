@@ -13,19 +13,15 @@ import kotlinx.coroutines.launch
 
 class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
 
-    // Estado das cartas disponíveis
     private val _availableCards = MutableStateFlow<List<Card>>(emptyList())
     val availableCards: StateFlow<List<Card>> = _availableCards.asStateFlow()
 
-    // Estado das torres disponíveis
     private val _availableTowers = MutableStateFlow<List<Tower>>(emptyList())
     val availableTowers: StateFlow<List<Tower>> = _availableTowers.asStateFlow()
 
-    // Estado das cartas selecionadas pelo usuário
     private val _selectedCards = MutableStateFlow<List<Card>>(emptyList())
     val selectedCards: StateFlow<List<Card>> = _selectedCards.asStateFlow()
 
-    // Estado da torre selecionada
     private val _selectedTower = MutableStateFlow<Tower?>(null)
     val selectedTower: StateFlow<Tower?> = _selectedTower.asStateFlow()
 
@@ -34,6 +30,9 @@ class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _saveError = MutableStateFlow<String?>(null)
+    val saveError: StateFlow<String?> = _saveError.asStateFlow()
 
     init {
         loadCards()
@@ -62,15 +61,11 @@ class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
         _deckName.value = name
     }
 
-    // Adiciona ou remove carta
     fun toggleCardSelection(card: Card) {
         val currentList = _selectedCards.value.toMutableList()
-
         if (currentList.contains(card)) {
-            // Se já tem, remove
             currentList.remove(card)
         } else {
-            // Se não tem e ainda cabe (max 8), adiciona
             if (currentList.size < 8) {
                 currentList.add(card)
             }
@@ -78,7 +73,15 @@ class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
         _selectedCards.value = currentList
     }
 
-    // Seleciona ou deseleciona a torre
+    fun swapCard(cardToRemove: Card, cardToAdd: Card) {
+        val currentList = _selectedCards.value.toMutableList()
+        val index = currentList.indexOf(cardToRemove)
+        if (index != -1) {
+            currentList[index] = cardToAdd
+            _selectedCards.value = currentList
+        }
+    }
+
     fun toggleTowerSelection(tower: Tower) {
         if (_selectedTower.value == tower) {
             _selectedTower.value = null
@@ -87,18 +90,31 @@ class DeckViewModel(private val repository: RoyaleRepository) : ViewModel() {
         }
     }
 
-    // Salva no database
     fun saveDeck(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            if (_deckName.value.isNotBlank() && _selectedCards.value.size == 8 && _selectedTower.value != null) {
+            val deckName = _deckName.value
+            val selectedCards = _selectedCards.value
+            val selectedTower = _selectedTower.value
+
+            if (deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null) {
                 val newDeck = Deck(
-                    name = _deckName.value,
-                    cards = _selectedCards.value,
-                    tower = _selectedTower.value
+                    name = deckName,
+                    cards = selectedCards,
+                    tower = selectedTower
                 )
-                repository.insertDeck(newDeck)
-                onSuccess()
+
+                val errorMessage = repository.checkIfDeckExists(newDeck)
+                if (errorMessage != null) {
+                    _saveError.value = errorMessage
+                } else {
+                    repository.insertDeck(newDeck)
+                    onSuccess()
+                }
             }
         }
+    }
+
+    fun clearSaveError() {
+        _saveError.value = null
     }
 }

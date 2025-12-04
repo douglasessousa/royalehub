@@ -1,5 +1,6 @@
 package com.douglasessousa.royalehub.ui.deck
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -9,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import com.douglasessousa.royalehub.data.model.Card
 import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.ui.components.CardView
 import com.douglasessousa.royalehub.ui.components.TowerView
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,20 +41,52 @@ fun CreateDeckScreen(
     val selectedTower by viewModel.selectedTower.collectAsState()
     val deckName by viewModel.deckName.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val saveError by viewModel.saveError.collectAsState()
 
     var itemToShowInDialog by remember { mutableStateOf<Any?>(null) }
+    var cardForSwap by remember { mutableStateOf<Card?>(null) }
+    val gridState = rememberLazyGridState()
+    val coroutineScope = rememberCoroutineScope()
 
     val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
+
+    // This effect will scroll the list to the top when the user initiates a swap
+    LaunchedEffect(cardForSwap) {
+        if (cardForSwap != null) {
+            gridState.animateScrollToItem(index = 0)
+        }
+    }
+
+    if (saveError != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearSaveError() },
+            title = { Text("Erro ao Salvar") },
+            text = { Text(saveError!!) },
+            confirmButton = {
+                Button(onClick = { viewModel.clearSaveError() }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
     if (itemToShowInDialog != null) {
         ItemInfoDialog(
             item = itemToShowInDialog!!,
             isCardInDeck = { selectedCards.contains(it) },
+            isDeckFull = selectedCards.size == 8,
             isTowerSelected = { selectedTower == it },
+            isAnyTowerSelected = selectedTower != null,
             onDismiss = { itemToShowInDialog = null },
             onConfirm = {
                 when (val item = itemToShowInDialog) {
-                    is Card -> viewModel.toggleCardSelection(item)
+                    is Card -> {
+                        if (selectedCards.size >= 8 && !selectedCards.contains(item)) {
+                            cardForSwap = item
+                        } else {
+                            viewModel.toggleCardSelection(item)
+                        }
+                    }
                     is Tower -> viewModel.toggleTowerSelection(item)
                 }
             }
@@ -78,6 +113,7 @@ fun CreateDeckScreen(
                 .padding(16.dp)
         ) {
             LazyVerticalGrid(
+                state = gridState,
                 columns = GridCells.Fixed(4),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -94,10 +130,31 @@ fun CreateDeckScreen(
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
-                item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Cartas Selecionadas", style = MaterialTheme.typography.titleMedium) }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Column {
+                        AnimatedVisibility(visible = cardForSwap != null) {
+                            Text(
+                                text = "Selecione uma carta do seu deck para substituir por ${cardForSwap?.name}.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                        }
+                        Text(text = "Cartas Selecionadas", style = MaterialTheme.typography.titleMedium)
+                    }
+                }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
 
-                item(span = { GridItemSpan(maxLineSpan) }) { SelectedCardsRow(selectedCards) { card -> itemToShowInDialog = card } }
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    SelectedCardsRow(selectedCards) { clickedCard ->
+                        if (cardForSwap != null) {
+                            viewModel.swapCard(clickedCard, cardForSwap!!)
+                            cardForSwap = null // End swap mode
+                        } else {
+                            itemToShowInDialog = clickedCard
+                        }
+                    }
+                }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
                 item(span = { GridItemSpan(maxLineSpan) }) { SelectedTowerRow(selectedTower) { tower -> itemToShowInDialog = tower } }
@@ -271,29 +328,35 @@ fun TowerItem(tower: Tower, isSelected: Boolean, onClick: () -> Unit) {
 private fun ItemInfoDialog(
     item: Any,
     isCardInDeck: (Card) -> Boolean,
+    isDeckFull: Boolean,
     isTowerSelected: (Tower) -> Boolean,
+    isAnyTowerSelected: Boolean,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
     val title: String
     val details: String
-    val isItemInDeck: Boolean
+    val buttonText: String
 
     when (item) {
         is Card -> {
             title = item.name
             details = "Elixir: ${item.elixir}\nRaridade: ${item.rarity}"
-            isItemInDeck = isCardInDeck(item)
+            val isThisCardInDeck = isCardInDeck(item)
+            buttonText = if (isThisCardInDeck) "Remover do Deck" else if (isDeckFull) "Trocar Carta" else "Adicionar ao Deck"
         }
         is Tower -> {
             title = item.name
             details = "Raridade: ${item.rarity}"
-            isItemInDeck = isTowerSelected(item)
+            val isThisTowerSelected = isTowerSelected(item)
+            buttonText = when {
+                isThisTowerSelected -> "Remover Torre"
+                isAnyTowerSelected -> "Trocar Torre"
+                else -> "Selecionar Torre"
+            }
         }
         else -> return
     }
-
-    val buttonText = if (isItemInDeck) "Remover do Deck" else "Adicionar ao Deck"
 
     AlertDialog(
         onDismissRequest = onDismiss,

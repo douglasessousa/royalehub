@@ -32,6 +32,24 @@ class RoyaleRepository(
         }
     }
 
+    suspend fun checkIfDeckExists(deck: Deck): String? {
+        if (dao.deckExistsByName(deck.name)) {
+            return "Você já tem um deck com esse nome."
+        }
+
+        val allDecks = dao.getAllDecksSuspend()
+        val newDeckCards = deck.cards.map { it.id }.toSet()
+
+        for (existingDeck in allDecks) {
+            val existingDeckCards = existingDeck.cards.map { it.id }.toSet()
+            if (existingDeckCards == newDeckCards && existingDeck.tower?.id == deck.tower?.id) {
+                return "Já existe um deck com essas mesmas cartas e torre"
+            }
+        }
+
+        return null
+    }
+
     // O Flow notifica a UI sempre que houver mudanças na tabela
     val allDecks: Flow<List<Deck>> = dao.getDecks()
 
