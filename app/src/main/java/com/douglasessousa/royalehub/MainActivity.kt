@@ -3,6 +3,8 @@ package com.douglasessousa.royalehub
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
@@ -18,8 +20,8 @@ import com.douglasessousa.royalehub.ui.components.RoyaleBottomBar
 import com.douglasessousa.royalehub.ui.ViewModelFactory
 import com.douglasessousa.royalehub.ui.deck.CreateDeckScreen
 import com.douglasessousa.royalehub.ui.deck.DeckViewModel
-import com.douglasessousa.royalehub.ui.details.DeckDetailsScreen
-import com.douglasessousa.royalehub.ui.details.DeckDetailsViewModel
+import com.douglasessousa.royalehub.ui.deck_details.DeckDetailsScreen
+import com.douglasessousa.royalehub.ui.deck_details.DeckDetailsViewModel
 import com.douglasessousa.royalehub.ui.home.HomeScreen
 import com.douglasessousa.royalehub.ui.home.HomeViewModel
 import com.douglasessousa.royalehub.ui.settings.SettingsScreen
@@ -27,6 +29,9 @@ import com.douglasessousa.royalehub.ui.settings.SettingsViewModel
 import com.douglasessousa.royalehub.ui.stats.StatsScreen
 import com.douglasessousa.royalehub.ui.stats.StatsViewModel
 import com.douglasessousa.royalehub.ui.theme.RoyalehubTheme
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +39,7 @@ class MainActivity : ComponentActivity() {
 
         val app = application as RoyaleHubApp
 
-        // Setup manual do repositório para a Factory
+        // Setup do repositório para a Factory
         val repository = com.douglasessousa.royalehub.data.repository.RoyaleRepository(
             app.database.royaleDao(),
             app.apiService
@@ -59,52 +64,64 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "home",
-                        modifier = Modifier.padding(innerPadding)
-                    ) {
-                        composable("home") {
-                            val homeViewModel: HomeViewModel = viewModel(factory = viewModelFactory)
-                            HomeScreen(
-                                viewModel = homeViewModel,
-                                onNavigateToCreateDeck = { navController.navigate("create_deck") },
-                                onNavigateToDeckDetails = { id -> navController.navigate("deck_details/$id") },
-                            )
-                        }
+                    Box(modifier = Modifier.fillMaxSize()) {
 
-                        composable("statistics") {
-                            val statsViewModel: StatsViewModel =
-                                viewModel(factory = viewModelFactory)
-                            StatsScreen(viewModel = statsViewModel)
-                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.royalehub_background),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
 
-                        composable("settings") {
-                            val settingsViewModel: SettingsViewModel =
-                                viewModel(factory = viewModelFactory)
-                            SettingsScreen(viewModel = settingsViewModel)
-                        }
+                        NavHost(
+                            navController = navController,
+                            startDestination = "home",
+                            modifier = Modifier.padding(innerPadding)
+                        ) {
+                            composable("home") {
+                                val homeViewModel: HomeViewModel =
+                                    viewModel(factory = viewModelFactory)
+                                HomeScreen(
+                                    viewModel = homeViewModel,
+                                    onNavigateToCreateDeck = { navController.navigate("create_deck") },
+                                    onNavigateToDeckDetails = { id -> navController.navigate("deck_details/$id") },
+                                )
+                            }
 
-                        composable("create_deck") {
-                            val deckViewModel: DeckViewModel = viewModel(factory = viewModelFactory)
-                            CreateDeckScreen(
-                                viewModel = deckViewModel,
-                                onBack = { navController.popBackStack() }
-                            )
-                        }
+                            composable("statistics") {
+                                val statsViewModel: StatsViewModel =
+                                    viewModel(factory = viewModelFactory)
+                                StatsScreen(viewModel = statsViewModel)
+                            }
 
-                        composable(
-                            route = "deck_details/{deckId}",
-                            arguments = listOf(navArgument("deckId") { type = NavType.IntType })
-                        ) { backStackEntry ->
-                            val deckId = backStackEntry.arguments?.getInt("deckId") ?: 0
-                            val detailsViewModel: DeckDetailsViewModel =
-                                viewModel(factory = viewModelFactory)
-                            DeckDetailsScreen(
-                                deckId = deckId,
-                                viewModel = detailsViewModel,
-                                onBack = { navController.popBackStack() }
-                            )
+                            composable("settings") {
+                                val settingsViewModel: SettingsViewModel =
+                                    viewModel(factory = viewModelFactory)
+                                SettingsScreen(viewModel = settingsViewModel)
+                            }
+
+                            composable("create_deck") {
+                                val deckViewModel: DeckViewModel =
+                                    viewModel(factory = viewModelFactory)
+                                CreateDeckScreen(
+                                    viewModel = deckViewModel,
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
+
+                            composable(
+                                route = "deck_details/{deckId}",
+                                arguments = listOf(navArgument("deckId") { type = NavType.IntType })
+                            ) { backStackEntry ->
+                                val deckId = backStackEntry.arguments?.getInt("deckId") ?: 0
+                                val detailsViewModel: DeckDetailsViewModel =
+                                    viewModel(factory = viewModelFactory)
+                                DeckDetailsScreen(
+                                    deckId = deckId,
+                                    viewModel = detailsViewModel,
+                                    onBack = { navController.popBackStack() }
+                                )
+                            }
                         }
                     }
                 }

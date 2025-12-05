@@ -1,4 +1,4 @@
-package com.douglasessousa.royalehub.ui.details
+package com.douglasessousa.royalehub.ui.deck_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
@@ -12,6 +13,7 @@ import com.douglasessousa.royalehub.ui.theme.TextGray
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel) {
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {

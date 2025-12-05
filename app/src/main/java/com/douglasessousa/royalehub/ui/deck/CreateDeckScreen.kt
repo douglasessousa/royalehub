@@ -1,9 +1,6 @@
 package com.douglasessousa.royalehub.ui.deck
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -15,7 +12,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,9 +21,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.data.model.Card
 import com.douglasessousa.royalehub.data.model.Tower
+import com.douglasessousa.royalehub.ui.deck.components.CardItem
 import com.douglasessousa.royalehub.ui.components.CardView
 import com.douglasessousa.royalehub.ui.components.TowerView
-import kotlinx.coroutines.launch
+import com.douglasessousa.royalehub.ui.deck.components.ItemInfoDialog
+import com.douglasessousa.royalehub.ui.deck.components.TowerItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +44,6 @@ fun CreateDeckScreen(
     var itemToShowInDialog by remember { mutableStateOf<Any?>(null) }
     var cardForSwap by remember { mutableStateOf<Card?>(null) }
     val gridState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
 
@@ -94,6 +91,7 @@ fun CreateDeckScreen(
     }
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = { Text("Novo Deck", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onPrimary) },
@@ -123,9 +121,17 @@ fun CreateDeckScreen(
                     OutlinedTextField(
                         value = deckName,
                         onValueChange = { viewModel.updateDeckName(it) },
-                        label = { Text("Nome do Deck (Ex: Log Bait)") },
+                        label = { Text("Nome do Deck") },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+                            cursorColor = MaterialTheme.colorScheme.primary
+                        )
                     )
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
@@ -140,7 +146,11 @@ fun CreateDeckScreen(
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                         }
-                        Text(text = "Cartas Selecionadas", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "Cartas Selecionadas",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
                     }
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
@@ -175,7 +185,13 @@ fun CreateDeckScreen(
                         }
                     }
                 } else {
-                    item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Escolha sua Torre", style = MaterialTheme.typography.titleMedium) }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = "Escolha sua Torre",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
                     item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         LazyRow(
@@ -191,7 +207,13 @@ fun CreateDeckScreen(
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
-                    item(span = { GridItemSpan(maxLineSpan) }) { Text(text = "Escolha suas Cartas", style = MaterialTheme.typography.titleMedium) }
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Text(
+                            text = "Escolha suas Cartas",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
                     item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
 
                     items(availableCards) { card ->
@@ -266,112 +288,5 @@ fun TowerSlot(tower: Tower?, onClick: (Tower?) -> Unit) {
         modifier = Modifier
             .width(75.dp)
             .clip(RoundedCornerShape(8.dp))
-    )
-}
-
-@Composable
-fun CardItem(card: Card, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(width = 93.dp, height = 137.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
-            .then(
-                if (isSelected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                else Modifier
-            )
-    ) {
-        CardView(card = card, onClick = { onClick() })
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
-            }
-        }
-    }
-}
-
-@Composable
-fun TowerItem(tower: Tower, isSelected: Boolean, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .size(width = 93.dp, height = 137.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
-            .then(
-                if (isSelected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                else Modifier
-            )
-    ) {
-        TowerView(
-            tower = tower, 
-            onClick = { onClick() }
-        )
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.4f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(Icons.Default.Check, contentDescription = null, tint = Color.White)
-            }
-        }
-    }
-}
-
-@Composable
-private fun ItemInfoDialog(
-    item: Any,
-    isCardInDeck: (Card) -> Boolean,
-    isDeckFull: Boolean,
-    isTowerSelected: (Tower) -> Boolean,
-    isAnyTowerSelected: Boolean,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit
-) {
-    val title: String
-    val details: String
-    val buttonText: String
-
-    when (item) {
-        is Card -> {
-            title = item.name
-            details = "Elixir: ${item.elixir}\nRaridade: ${item.rarity}"
-            val isThisCardInDeck = isCardInDeck(item)
-            buttonText = if (isThisCardInDeck) "Remover do Deck" else if (isDeckFull) "Trocar Carta" else "Adicionar ao Deck"
-        }
-        is Tower -> {
-            title = item.name
-            details = "Raridade: ${item.rarity}"
-            val isThisTowerSelected = isTowerSelected(item)
-            buttonText = when {
-                isThisTowerSelected -> "Remover Torre"
-                isAnyTowerSelected -> "Trocar Torre"
-                else -> "Selecionar Torre"
-            }
-        }
-        else -> return
-    }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = title) },
-        text = { Text(text = details) },
-        confirmButton = {
-            Button(onClick = {
-                onConfirm()
-                onDismiss()
-            }) {
-                Text(buttonText)
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) { Text("Fechar") }
-        }
     )
 }
