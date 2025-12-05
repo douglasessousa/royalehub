@@ -8,5 +8,6 @@ data class Deck(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
-    val cards: List<Card>
+    val cards: List<Card>,
+    val tower: Tower?
 )

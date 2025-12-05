@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.douglasessousa.royalehub.data.repository.RoyaleRepository
 import com.douglasessousa.royalehub.ui.deck.DeckViewModel
-import com.douglasessousa.royalehub.ui.details.DeckDetailsViewModel
+import com.douglasessousa.royalehub.ui.deck_details.DeckDetailsViewModel
 import com.douglasessousa.royalehub.ui.home.HomeViewModel
 import com.douglasessousa.royalehub.ui.settings.SettingsViewModel
 import com.douglasessousa.royalehub.ui.stats.StatsViewModel

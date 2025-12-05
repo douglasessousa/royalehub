@@ -12,13 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.douglasessousa.royalehub.ui.theme.LossRed
+import com.douglasessousa.royalehub.ui.stats.components.DeckStatRow
 import com.douglasessousa.royalehub.ui.theme.TextGray
-import com.douglasessousa.royalehub.ui.theme.WinGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -26,6 +26,7 @@ fun StatsScreen(viewModel: StatsViewModel) {
     val dashboardData by viewModel.dashboardData.collectAsState()
 
     Scaffold(
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -75,15 +76,15 @@ fun StatsScreen(viewModel: StatsViewModel) {
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Lista abaixo do gráfico
                 Text(
                     text = "Detalhes por Deck",
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
                     items(dashboardData) { item ->
@@ -107,7 +108,6 @@ fun BarChart(data: List<DeckDashboardItem>) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
-                // Porcentagem no topo da barra
                 Text(
                     text = "${(item.winRate * 100).toInt()}%",
                     style = MaterialTheme.typography.labelSmall,
@@ -117,7 +117,6 @@ fun BarChart(data: List<DeckDashboardItem>) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Barra
                 val barHeight = if (item.winRate == 0f) 0.02f else item.winRate
 
                 Box(
@@ -130,7 +129,6 @@ fun BarChart(data: List<DeckDashboardItem>) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                // Nome do Deck
                 Text(
                     text = item.deckName,
                     style = MaterialTheme.typography.bodySmall,
@@ -139,37 +137,6 @@ fun BarChart(data: List<DeckDashboardItem>) {
                     fontSize = 10.sp
                 )
             }
-        }
-    }
-}
-
-@Composable
-fun DeckStatRow(item: DeckDashboardItem) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = item.deckName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 16.sp
-                )
-                Text(
-                    text = "Vitórias: ${item.wins} | Derrotas: ${item.losses}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextGray
-                )
-            }
-            Text(
-                text = "${(item.winRate * 100).toInt()}%",
-                style = MaterialTheme.typography.titleLarge,
-                color = if(item.winRate >= 0.5) WinGreen else LossRed
-            )
         }
     }
 }

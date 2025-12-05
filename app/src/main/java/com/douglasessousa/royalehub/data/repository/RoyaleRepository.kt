@@ -4,6 +4,7 @@ import android.util.Log
 import com.douglasessousa.royalehub.api.RoyaleApiService
 import com.douglasessousa.royalehub.data.local.db.RoyaleDao
 import com.douglasessousa.royalehub.data.model.Card
+import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +14,6 @@ class RoyaleRepository(
     private val api: RoyaleApiService
 ) {
 
-    // Busca a lista de todas as cartas na API
     suspend fun getCardsFromApi(): List<Card> {
         return try {
             api.getAllCards()
@@ -21,6 +21,33 @@ class RoyaleRepository(
             Log.e("RoyaleRepository", "Erro ao buscar cartas: ${e.message}")
             emptyList()
         }
+    }
+
+    suspend fun getTowersFromApi(): List<Tower> {
+        return try {
+            api.getAllTowers()
+        } catch (e: Exception) {
+            Log.e("RoyaleRepository", "Erro ao buscar tropas de torre: ${e.message}")
+            emptyList()
+        }
+    }
+
+    suspend fun checkIfDeckExists(deck: Deck): String? {
+        if (dao.deckExistsByName(deck.name)) {
+            return "Você já tem um deck com esse nome."
+        }
+
+        val allDecks = dao.getAllDecksSuspend()
+        val newDeckCards = deck.cards.map { it.id }.toSet()
+
+        for (existingDeck in allDecks) {
+            val existingDeckCards = existingDeck.cards.map { it.id }.toSet()
+            if (existingDeckCards == newDeckCards && existingDeck.tower?.id == deck.tower?.id) {
+                return "Já existe um deck com essas mesmas cartas e torre"
+            }
+        }
+
+        return null
     }
 
     // O Flow notifica a UI sempre que houver mudanças na tabela
