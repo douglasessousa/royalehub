@@ -1,5 +1,6 @@
 package com.douglasessousa.royalehub.ui.settings
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.douglasessousa.royalehub.data.model.User
@@ -19,12 +20,18 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
     private val _id = MutableStateFlow("")
     val id = _id.asStateFlow()
 
+    private val _avatarUri = MutableStateFlow<String?>(null)
+    val avatarUri = _avatarUri.asStateFlow()
+
     init {
         viewModelScope.launch {
             repository.getUser().first()?.let {
                 _user.value = it
                 _nickname.value = it.nickname
                 _id.value = it.id
+                if (it.avatarUrl.isNotEmpty()) {
+                    _avatarUri.value = it.avatarUrl
+                }
             }
         }
     }
@@ -37,16 +44,25 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
         _id.value = id
     }
 
+    fun onAvatarChange(uri: Uri?) {
+        _avatarUri.value = uri?.toString()
+    }
+
     fun saveUser() {
         viewModelScope.launch {
-            // Usa o avatarUrl existente se houver, ou uma string vazia
-            val currentAvatarUrl = _user.value?.avatarUrl ?: ""
-            val userToSave = User(id = _id.value, nickname = _nickname.value, avatarUrl = currentAvatarUrl)
+            val userToSave = User(id = _id.value, nickname = _nickname.value, avatarUrl = _avatarUri.value ?: "")
             repository.insertUser(userToSave)
         }
     }
 
     fun clearData() {
-        viewModelScope.launch { repository.clearAllData() }
+        viewModelScope.launch {
+            repository.clearAllData()
+            // Limpa o estado no ViewModel para a UI ser atualizada
+            _user.value = null
+            _nickname.value = ""
+            _id.value = ""
+            _avatarUri.value = null
+        }
     }
 }

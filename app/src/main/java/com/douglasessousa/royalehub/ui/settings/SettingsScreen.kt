@@ -1,6 +1,12 @@
 package com.douglasessousa.royalehub.ui.settings
 
-import androidx.compose.foundation.Image
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -8,18 +14,21 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import coil.compose.AsyncImage
 import com.douglasessousa.royalehub.R
 import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,6 +38,71 @@ fun SettingsScreen(
 ) {
     val nickname by viewModel.nickname.collectAsState()
     val id by viewModel.id.collectAsState()
+    val avatarUri by viewModel.avatarUri.collectAsState()
+
+    var showImageSourceDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    fun createImageUri(context: Context): Uri {
+        val file = File.createTempFile("JPEG_${System.currentTimeMillis()}_", ".jpg", context.externalCacheDir)
+        return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
+    }
+
+    val pickMediaLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
+        if (uri != null) {
+            viewModel.onAvatarChange(uri)
+        }
+    }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { success ->
+        if (success) {
+            tempImageUri?.let { viewModel.onAvatarChange(it) }
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            val newUri = createImageUri(context)
+            tempImageUri = newUri
+            takePictureLauncher.launch(newUri)
+        }
+    }
+
+    if (showImageSourceDialog) {
+        AlertDialog(
+            onDismissRequest = { showImageSourceDialog = false },
+            title = { Text("Escolher fonte da imagem") },
+            text = { Text("Selecione uma foto para o seu perfil.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showImageSourceDialog = false
+                        when (PackageManager.PERMISSION_GRANTED) {
+                            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) -> {
+                                val newUri = createImageUri(context)
+                                tempImageUri = newUri
+                                takePictureLauncher.launch(newUri)
+                            }
+                            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+                ) {
+                    Text("Câmera")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showImageSourceDialog = false
+                        pickMediaLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                    }
+                ) {
+                    Text("Galeria")
+                }
+            }
+        )
+    }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -43,28 +117,28 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState()) // Permite a rolagem da tela
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
         ) {
-            // --- Seção de Perfil ---
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
                 Text("Perfil do Jogador", style = MaterialTheme.typography.titleLarge)
-
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Box(
                     modifier = Modifier
                         .size(120.dp)
                         .clip(CircleShape)
-                        .background(Color.Gray)
-                        .clickable { /* TODO: Implementar seleção de imagem */ },
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .clickable { showImageSourceDialog = true },
                     contentAlignment = Alignment.Center
                 ) {
-                    // Placeholder para a imagem
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                    AsyncImage(
+                        model = avatarUri,
                         contentDescription = "Avatar do Usuário",
-                        modifier = Modifier.size(80.dp)
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                        error = painterResource(id = R.drawable.ic_launcher_foreground)
                     )
                 }
 
@@ -83,7 +157,7 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = id,
                     onValueChange = { viewModel.onIdChange(it) },
-                    label = { Text("ID do Jogador") },
+                    label = { Text("ID do Jogador (Ex: #ABC123)") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
@@ -105,7 +179,6 @@ fun SettingsScreen(
             HorizontalDivider()
             Spacer(modifier = Modifier.height(24.dp))
 
-            // --- Seções Anteriores ---
             Card(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
