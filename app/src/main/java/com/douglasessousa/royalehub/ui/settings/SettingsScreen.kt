@@ -157,7 +157,7 @@ fun SettingsScreen(
                 OutlinedTextField(
                     value = id,
                     onValueChange = { viewModel.onIdChange(it) },
-                    label = { Text("ID do Jogador (Ex: #ABC123)") },
+                    label = { Text("ID do Jogador") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true
                 )
