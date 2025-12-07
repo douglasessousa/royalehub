@@ -18,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -149,7 +150,10 @@ fun SettingsScreen(
                     onValueChange = { viewModel.onNicknameChange(it) },
                     label = { Text("Nickname") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -159,7 +163,10 @@ fun SettingsScreen(
                     onValueChange = { viewModel.onIdChange(it) },
                     label = { Text("ID do Jogador") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))

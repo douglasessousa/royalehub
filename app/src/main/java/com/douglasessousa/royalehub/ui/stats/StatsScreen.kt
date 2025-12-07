@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.douglasessousa.royalehub.ui.stats.components.DeckStatRow
 import com.douglasessousa.royalehub.ui.theme.TextGray
+import com.douglasessousa.royalehub.ui.theme.TextWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -52,7 +53,7 @@ fun StatsScreen(viewModel: StatsViewModel) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "Jogue algumas partidas para ver as estatísticas!",
-                        color = TextGray,
+                        color = TextWhite,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
