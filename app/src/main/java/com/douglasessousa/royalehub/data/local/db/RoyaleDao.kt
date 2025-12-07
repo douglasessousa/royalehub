@@ -5,9 +5,10 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
+import com.douglasessousa.royalehub.data.model.User
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RoyaleDao {
@@ -60,4 +61,13 @@ interface RoyaleDao {
 
     @Query("DELETE FROM matches")
     suspend fun deleteAllMatches()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertUser(user: User)
+
+    @Query("SELECT * FROM user_profile LIMIT 1")
+    fun getUser(): Flow<User?>
+    
+    @Query("DELETE FROM user_profile")
+    suspend fun deleteAllUsers()
 }

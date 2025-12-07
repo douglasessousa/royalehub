@@ -8,8 +8,9 @@ import androidx.room.TypeConverters
 import com.douglasessousa.royalehub.data.local.Converters
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
+import com.douglasessousa.royalehub.data.model.User
 
-@Database(entities = [Deck::class, MatchResult::class], version = 2, exportSchema = false)
+@Database(entities = [Deck::class, MatchResult::class, User::class], version = 4, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
