@@ -10,7 +10,7 @@ import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
 import com.douglasessousa.royalehub.data.model.User
 
-@Database(entities = [Deck::class, MatchResult::class, User::class], version = 4, exportSchema = false)
+@Database(entities = [Deck::class, MatchResult::class, User::class], version = 5, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 

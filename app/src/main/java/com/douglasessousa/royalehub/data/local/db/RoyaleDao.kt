@@ -65,7 +65,7 @@ interface RoyaleDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 
-    @Query("SELECT * FROM user_profile LIMIT 1")
+    @Query("SELECT * FROM user_profile WHERE pk = 0")
     fun getUser(): Flow<User?>
     
     @Query("DELETE FROM user_profile")

@@ -120,66 +120,65 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                Text("Perfil do Jogador", style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.height(16.dp))
+            Text("Perfil do Jogador", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                        .clickable { showImageSourceDialog = true },
-                    contentAlignment = Alignment.Center
-                ) {
-                    AsyncImage(
-                        model = avatarUri,
-                        contentDescription = "Avatar do Usuário",
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
-                        error = painterResource(id = R.drawable.ic_launcher_foreground)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = nickname,
-                    onValueChange = { viewModel.onNicknameChange(it) },
-                    label = { Text("Nickname") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                    )
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.secondaryContainer)
+                    .clickable { showImageSourceDialog = true },
+                contentAlignment = Alignment.Center
+            ) {
+                AsyncImage(
+                    model = avatarUri,
+                    contentDescription = "Avatar do Usuário",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                    placeholder = painterResource(id = R.drawable.ic_launcher_foreground),
+                    error = painterResource(id = R.drawable.ic_launcher_foreground)
                 )
+            }
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                OutlinedTextField(
-                    value = id,
-                    onValueChange = { viewModel.onIdChange(it) },
-                    label = { Text("ID do Jogador") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-                    )
+            OutlinedTextField(
+                value = nickname,
+                onValueChange = { viewModel.onNicknameChange(it) },
+                label = { Text("Nickname") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                 )
+            )
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = {
-                        viewModel.saveUser()
-                        onSave()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Salvar Perfil")
-                }
+            OutlinedTextField(
+                value = id,
+                onValueChange = { viewModel.onIdChange(it) },
+                label = { Text("ID do Jogador") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                )
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    viewModel.saveUser()
+                    onSave()
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Salvar Perfil")
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -187,6 +186,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
@@ -208,6 +208,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Card(
+                modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {

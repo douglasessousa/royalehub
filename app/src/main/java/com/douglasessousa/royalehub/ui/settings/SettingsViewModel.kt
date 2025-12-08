@@ -17,6 +17,7 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
     private val _nickname = MutableStateFlow("")
     val nickname = _nickname.asStateFlow()
 
+    // Este estado agora representa o 'gameId'
     private val _id = MutableStateFlow("")
     val id = _id.asStateFlow()
 
@@ -28,7 +29,7 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
             repository.getUser().first()?.let {
                 _user.value = it
                 _nickname.value = it.nickname
-                _id.value = it.id
+                _id.value = it.gameId // Corrigido para usar gameId
                 if (it.avatarUrl.isNotEmpty()) {
                     _avatarUri.value = it.avatarUrl
                 }
@@ -50,7 +51,12 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
 
     fun saveUser() {
         viewModelScope.launch {
-            val userToSave = User(id = _id.value, nickname = _nickname.value, avatarUrl = _avatarUri.value ?: "")
+            val userToSave = User(
+                pk = 0, // Chave primária fixa
+                gameId = _id.value, // Corrigido para gameId
+                nickname = _nickname.value,
+                avatarUrl = _avatarUri.value ?: ""
+            )
             repository.insertUser(userToSave)
         }
     }
@@ -58,7 +64,6 @@ class SettingsViewModel(private val repository: RoyaleRepository) : ViewModel() 
     fun clearData() {
         viewModelScope.launch {
             repository.clearAllData()
-            // Limpa o estado no ViewModel para a UI ser atualizada
             _user.value = null
             _nickname.value = ""
             _id.value = ""
