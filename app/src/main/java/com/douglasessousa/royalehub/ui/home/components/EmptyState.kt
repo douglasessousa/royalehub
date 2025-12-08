@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.ui.theme.TextGray
+import com.douglasessousa.royalehub.ui.theme.TextWhite
 
 @Composable
 fun EmptyState(onButtonClick: () -> Unit) {
@@ -35,7 +36,7 @@ fun EmptyState(onButtonClick: () -> Unit) {
             text = "Comece criando seu primeiro deck para registrar suas partidas.",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
-            color = TextGray
+            color = TextWhite
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(

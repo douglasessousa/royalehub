@@ -1,6 +1,7 @@
 package com.douglasessousa.royalehub.ui.deck
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -118,6 +119,22 @@ fun CreateDeckScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
+//                    OutlinedTextField(
+//                        value = deckName,
+//                        onValueChange = { viewModel.updateDeckName(it) },
+//                        label = { Text("Nome do Deck") },
+//                        modifier = Modifier.fillMaxWidth(),
+//                        singleLine = true,
+//                        colors = OutlinedTextFieldDefaults.colors(
+//                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+//                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+//
+//                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+//                            focusedLabelColor = MaterialTheme.colorScheme.primary,
+//                            cursorColor = MaterialTheme.colorScheme.primary
+//                        )
+//                    )
+
                     OutlinedTextField(
                         value = deckName,
                         onValueChange = { viewModel.updateDeckName(it) },
@@ -125,12 +142,7 @@ fun CreateDeckScreen(
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-
-                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-                            cursorColor = MaterialTheme.colorScheme.primary
+                            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
                         )
                     )
                 }

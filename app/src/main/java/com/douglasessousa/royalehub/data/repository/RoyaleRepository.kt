@@ -4,9 +4,10 @@ import android.util.Log
 import com.douglasessousa.royalehub.api.RoyaleApiService
 import com.douglasessousa.royalehub.data.local.db.RoyaleDao
 import com.douglasessousa.royalehub.data.model.Card
-import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.data.model.Deck
 import com.douglasessousa.royalehub.data.model.MatchResult
+import com.douglasessousa.royalehub.data.model.Tower
+import com.douglasessousa.royalehub.data.model.User
 import kotlinx.coroutines.flow.Flow
 
 class RoyaleRepository(
@@ -50,7 +51,14 @@ class RoyaleRepository(
         return null
     }
 
-    // O Flow notifica a UI sempre que houver mudanças na tabela
+    // User functions
+    fun getUser(): Flow<User?> = dao.getUser()
+
+    suspend fun insertUser(user: User) {
+        dao.insertUser(user)
+    }
+
+    // Deck functions
     val allDecks: Flow<List<Deck>> = dao.getDecks()
 
     suspend fun getDeckById(id: Int): Deck? {
@@ -62,11 +70,11 @@ class RoyaleRepository(
     }
 
     suspend fun deleteDeck(deck: Deck) {
-        // Ao apagar um deck, remove também o histórico de partidas
         dao.deleteMatchesByDeckId(deck.id)
         dao.deleteDeck(deck)
     }
 
+    // Match functions
     val recentMatches: Flow<List<MatchResult>> = dao.getRecentMatches()
 
     fun getMatchesForDeck(deckId: Int): Flow<List<MatchResult>> {
@@ -81,10 +89,12 @@ class RoyaleRepository(
         dao.deleteMatch(match)
     }
 
-    val allMatches: Flow<List<MatchResult>> = dao.getAllMatches();
+    val allMatches: Flow<List<MatchResult>> = dao.getAllMatches()
 
+    // Data cleanup
     suspend fun clearAllData() {
         dao.deleteAllMatches()
         dao.deleteAllDecks()
+        dao.deleteAllUsers() // Assuming this function will be added to the DAO
     }
 }

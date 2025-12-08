@@ -97,7 +97,7 @@ class MainActivity : ComponentActivity() {
                             composable("settings") {
                                 val settingsViewModel: SettingsViewModel =
                                     viewModel(factory = viewModelFactory)
-                                SettingsScreen(viewModel = settingsViewModel)
+                                SettingsScreen(viewModel = settingsViewModel, onSave = { navController.popBackStack() })
                             }
 
                             composable("create_deck") {
