@@ -13,20 +13,20 @@
 [RoyaleHub]
 
 ## Descrição do Projeto
-[O RoyaleHub é uma aplicação voltada para jogadores de Clash Royale que desejam organizar e analisar seu desempenho no jogo de forma prática. O projeto permite ao usuário criar e editar até quatro decks personalizados, armazenando a composição de cartas de cada um. A ideia é centralizar as informações de desempenho dos decks em um único lugar, facilitando a comparação entre estratégias e auxiliando o jogador a entender quais combinações funcionam melhor em suas partidas.
+[O RoyaleHub é uma aplicação voltada para jogadores de Clash Royale que desejam organizar e analisar seu desempenho no jogo de forma prática. O projeto permite ao usuário criar e editar decks personalizados, armazenando a composição de cartas de cada um. A ideia é centralizar as informações de desempenho dos decks em um único lugar, facilitando a comparação entre estratégias e auxiliando o jogador a entender quais combinações funcionam melhor em suas partidas.
 
-O sistema puxa automaticamente os status de cada carta usada nos decks, como nível, tipo e raridade, e registra os resultados das partidas jogadas com cada um — contabilizando vitórias e derrotas. A partir desses dados, o hub calcula o Win Rate (taxa de vitórias) de cada deck, exibindo as estatísticas de forma clara e visual. Caso o jogador altere um deck, os dados antigos são apagados para garantir que as estatísticas reflitam apenas o desempenho da nova configuração.
+O sistema puxa automaticamente os status de cada carta usada nos decks, como valor de elixir, nome e raridade, e registra os resultados das partidas jogadas com cada um — contabilizando vitórias e derrotas. A partir desses dados, o hub calcula o Win Rate (taxa de vitórias) de cada deck, exibindo as estatísticas de forma clara e visual. Caso o jogador altere um deck, os dados antigos são apagados para garantir que as estatísticas reflitam apenas o desempenho da nova configuração.
 
 O público-alvo são jogadores de Clash Royale que buscam melhorar seu desempenho e otimizar seus decks com base em dados reais. A aplicação oferece uma ferramenta intuitiva e informativa para quem quer evoluir no jogo, permitindo acompanhar seu progresso de maneira organizada e estratégica.]
 
 ---
 
 ## Funcionalidades Principais
-[Criação, edição e visualização de decks: Permitir que o usuário monte e edite até quatro decks personalizados com as cartas disponíveis no jogo, além de poder visualizar os decks criados.
+[Criação, visualização e exclusão de decks: Permitir que o usuário monte decks personalizados com as cartas disponíveis no jogo, além de poder visualizar os decks criados.
 
- Consulta de status das cartas: Exibir informações detalhadas de cada carta presente nos decks, como tipo, raridade e nível.
+ Consulta de status das cartas: Exibir informações detalhadas de cada carta presente nos decks, como valor de elixir, raridade e nome.
 
- Registro de partidas: Adicionar resultados de vitórias e derrotas associadas a cada deck utilizado,além de poder remover e visualizar o histórico das últimas 20 partidas.
+ Registro de partidas: Adicionar resultados de vitórias e derrotas associadas a cada deck utilizado, além de poder visualizar o histórico das últimas partidas.
 
  Cálculo automático de Win Rate: Calcular e exibir a taxa de vitórias (Win Rate) de cada deck com base nos resultados registrados.
 
@@ -42,7 +42,12 @@ O público-alvo são jogadores de Clash Royale que buscam melhorar seu desempenh
 
 ##  Tecnologias: 
 Liste aqui as tecnologias e bibliotecas que foram utilizadas no projeto.
-
+Kotlin
+Jetpack Compose
+Room para armazenamento de dados
+Retrofit para consultas nas api
+Node.js
+Express
 ---
 
 ## Instruções para Execução
