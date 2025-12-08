@@ -48,16 +48,42 @@ Room para armazenamento de dados
 Retrofit para consultas nas api
 Node.js
 Express
+Git/Github
 ---
 
 ## Instruções para Execução
 [Inclua instruções claras sobre como rodar o projeto localmente. Isso é crucial para que você possa testá-lo nas próximas entregas. **Somente caso haja alguma coisa diferente do usual**
 
 ```bash
-# Clone o repositório
-git clone [https://docs.github.com/pt/repositories/creating-and-managing-repositories/about-repositories](https://docs.github.com/pt/repositories/creating-and-managing-repositories/about-repositories)
+# Clone o frontend
+git clone https://github.com/douglasessousa/royalehub.git
 
-# Navegue para o diretório
-cd [nome-do-repositorio]
+#Acesse a pasta do frontend
+cd royalehub
 
-# Siga as instruções específicas para a sua tecnologia...
+#Vá até a pasta principal do projeto
+cd app/src/main/java/com/douglasessousa/royalehub
+
+#Localize o arquivo RoyaleHubApp.kt e abra no editor de arquivos de sua preferência
+
+#Dentro do arquivo RoyaleHubApp.kt, localize o bloco:
+
+private val retrofit by lazy {
+    Retrofit.Builder()
+        .baseUrl("http://192.168.0.7:3000/") Substitua o IP pelo da máquina onde o backend está rodando.
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+}
+
+# Depois, clone o backend
+git clone https://github.com/douglasessousa/royalehub-backend.git
+
+#Acesse a pasta do backend
+cd royalehub-backend
+
+#Instale as dependências
+npm install
+
+#Inicie o servidor
+node index.js
+O servidor Express agora estará rodando em http://localhost:3000
