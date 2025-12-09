@@ -1,7 +1,6 @@
 package com.douglasessousa.royalehub.ui.deck
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -48,7 +47,7 @@ fun CreateDeckScreen(
 
     val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
 
-    // This effect will scroll the list to the top when the user initiates a swap
+    // Efeito p/ escrolar para o topo após fazer a troca da carta
     LaunchedEffect(cardForSwap) {
         if (cardForSwap != null) {
             gridState.animateScrollToItem(index = 0)
@@ -119,22 +118,6 @@ fun CreateDeckScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
-//                    OutlinedTextField(
-//                        value = deckName,
-//                        onValueChange = { viewModel.updateDeckName(it) },
-//                        label = { Text("Nome do Deck") },
-//                        modifier = Modifier.fillMaxWidth(),
-//                        singleLine = true,
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedContainerColor = MaterialTheme.colorScheme.surface,
-//                            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-//
-//                            focusedBorderColor = MaterialTheme.colorScheme.primary,
-//                            focusedLabelColor = MaterialTheme.colorScheme.primary,
-//                            cursorColor = MaterialTheme.colorScheme.primary
-//                        )
-//                    )
-
                     OutlinedTextField(
                         value = deckName,
                         onValueChange = { viewModel.updateDeckName(it) },
@@ -143,6 +126,8 @@ fun CreateDeckScreen(
                         singleLine = true,
                         colors = OutlinedTextFieldDefaults.colors(
                             unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+                            focusedContainerColor = MaterialTheme.colorScheme.surface,
+                            unfocusedContainerColor = MaterialTheme.colorScheme.surface
                         )
                     )
                 }
@@ -161,7 +146,7 @@ fun CreateDeckScreen(
                         Text(
                             text = "Cartas Selecionadas",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.surface
                         )
                     }
                 }
@@ -201,7 +186,7 @@ fun CreateDeckScreen(
                         Text(
                             text = "Escolha sua Torre",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.surface
                         )
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
@@ -223,7 +208,7 @@ fun CreateDeckScreen(
                         Text(
                             text = "Escolha suas Cartas",
                             style = MaterialTheme.typography.titleMedium,
-                            color = Color.White
+                            color = MaterialTheme.colorScheme.surface
                         )
                     }
                     item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
@@ -243,7 +228,9 @@ fun CreateDeckScreen(
                 onClick = { viewModel.saveDeck(onSuccess = onBack) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
                 enabled = canSave,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary, disabledContainerColor = Color.LightGray)
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    disabledContainerColor = MaterialTheme.colorScheme.secondary)
             ) {
                 Text("Salvar Deck", style = MaterialTheme.typography.bodyLarge)
             }
@@ -274,7 +261,7 @@ fun SelectedTowerRow(selectedTower: Tower?, onTowerClick: (Tower) -> Unit) {
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        // Add 3 invisible spacers to push the TowerSlot to the 4th position
+        // Adicionar 3 edspaços invisíveis para a torre ficar na 4ª posição
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))

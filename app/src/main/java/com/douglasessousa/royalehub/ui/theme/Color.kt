@@ -14,10 +14,13 @@ val Purple = Color(0xFF9C27B0)
 // Cores para Light Theme
 val BackgroundLight = Color(0xFFF5F5F5)
 val SurfaceWhite = Color(0xFFFFFFFF)
+val SurfaceWhiteSecondary = Color(0xFFE0E0E0)
+
 val TextBlack = Color(0xFF1C1B1F)
 val TextGray = Color(0xFF757575)
 
 // Cores para Dark Theme
 val BackgroundDark = Color(0xFF121212)
 val SurfaceDark = Color(0xFF1E1E1E)
+val SurfaceDarkSecondary = Color(0xFF2A2A2A)
 val TextWhite = Color(0xFFE1E1E1)

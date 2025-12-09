@@ -83,7 +83,11 @@ fun DeckDetailsScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Últimas Partidas", style = MaterialTheme.typography.titleLarge, color = Color.White)
+                    Text(
+                        "Últimas Partidas",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.surface
+                    )
 
                     Button(
                         onClick = { showAddMatchDialog = true },

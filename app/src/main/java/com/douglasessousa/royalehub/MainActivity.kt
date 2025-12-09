@@ -30,6 +30,10 @@ import com.douglasessousa.royalehub.ui.stats.StatsScreen
 import com.douglasessousa.royalehub.ui.stats.StatsViewModel
 import com.douglasessousa.royalehub.ui.theme.RoyalehubTheme
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 
@@ -47,7 +51,11 @@ class MainActivity : ComponentActivity() {
         val viewModelFactory = ViewModelFactory(repository)
 
         setContent {
-            RoyalehubTheme {
+            // Detecta o tema do sistema
+            val systemTheme = isSystemInDarkTheme()
+            var isDarkTheme by remember { mutableStateOf(systemTheme) }
+
+            RoyalehubTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
 
                 // observa a rota atual
@@ -95,9 +103,13 @@ class MainActivity : ComponentActivity() {
                             }
 
                             composable("settings") {
-                                val settingsViewModel: SettingsViewModel =
-                                    viewModel(factory = viewModelFactory)
-                                SettingsScreen(viewModel = settingsViewModel, onSave = { navController.popBackStack() })
+                                val settingsViewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
+                                SettingsScreen(
+                                    viewModel = settingsViewModel,
+                                    isDarkTheme = isDarkTheme,
+                                    onThemeChange = { isDarkTheme = it },
+                                    onSave = { navController.navigate("home") }
+                                )
                             }
 
                             composable("create_deck") {
