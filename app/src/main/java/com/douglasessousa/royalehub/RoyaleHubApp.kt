@@ -12,7 +12,7 @@ class RoyaleHubApp : Application() {
 
     private val retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl("http://192.168.0.7:3000/")
+            .baseUrl("http://192.168.0.10:3000/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
