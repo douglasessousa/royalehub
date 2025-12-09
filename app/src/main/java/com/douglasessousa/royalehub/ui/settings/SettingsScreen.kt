@@ -34,6 +34,17 @@ import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
 import java.io.File
 
+/**
+ * Tela de Configurações do aplicativo.
+ *
+ * Esta tela permite ao usuário:
+ * - Editar seu perfil (avatar, nickname e ID do jogador).
+ * - Alterar o tema do aplicativo (claro/escuro).
+ * - Gerenciar dados locais (limpar todos os dados).
+ * - Ver informações sobre o aplicativo.
+ * A tela utiliza a abordagem moderna de UI do Android com Jetpack Compose e lida com
+ * permissões e seleção de mídia (câmera/galeria) através de `rememberLauncherForActivityResult`.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -42,39 +53,51 @@ fun SettingsScreen(
     onThemeChange: (Boolean) -> Unit,
     onSave: () -> Unit
 ) {
+    // Coleta os estados do ViewModel para que a UI se atualize automaticamente.
     val nickname by viewModel.nickname.collectAsState()
     val id by viewModel.id.collectAsState()
     val avatarUri by viewModel.avatarUri.collectAsState()
 
+    // Estados específicos da UI
     var showImageSourceDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+    var tempImageUri by remember { mutableStateOf<Uri?>(null) } // Armazena a URI temporária da foto tirada pela câmera
 
+    /**
+     * Cria uma URI de arquivo segura para a câmera salvar a foto.
+     * Utiliza um [FileProvider] para evitar a exposição de file:// URIs, uma prática de segurança recomendada.
+     */
     fun createImageUri(context: Context): Uri {
         val file = File.createTempFile("JPEG_${System.currentTimeMillis()}_", ".jpg", context.externalCacheDir)
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
 
+    // Launcher para o seletor de fotos moderno do Android (Galeria).
     val pickMediaLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
             viewModel.onAvatarChange(uri)
         }
     }
 
+    // Launcher para a câmera.
     val takePictureLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { success ->
         if (success) {
+            // A foto foi salva na `tempImageUri`, agora passamos essa URI para o ViewModel.
             tempImageUri?.let { viewModel.onAvatarChange(it) }
         }
     }
 
+    // Launcher para pedir a permissão da câmera em tempo de execução.
     val cameraPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
+            // Se a permissão for concedida, cria uma nova URI e abre a câmera.
             val newUri = createImageUri(context)
             tempImageUri = newUri
             takePictureLauncher.launch(newUri)
         }
     }
 
+    // Diálogo que pergunta ao usuário se ele quer usar a Câmera ou a Galeria.
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
@@ -84,13 +107,14 @@ fun SettingsScreen(
                 TextButton(
                     onClick = {
                         showImageSourceDialog = false
+                        // Verifica se a permissão da câmera já foi concedida.
                         when (PackageManager.PERMISSION_GRANTED) {
                             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) -> {
                                 val newUri = createImageUri(context)
                                 tempImageUri = newUri
                                 takePictureLauncher.launch(newUri)
                             }
-                            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA) // Pede a permissão
                         }
                     }
                 ) {
@@ -123,10 +147,11 @@ fun SettingsScreen(
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()) // Permite a rolagem da tela inteira
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // --- Seção Perfil do Jogador ---
             Text(
                 "Perfil do Jogador",
                 style = MaterialTheme.typography.titleLarge,
@@ -134,6 +159,7 @@ fun SettingsScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Avatar clicável que abre o diálogo de seleção de imagem.
             Box(
                 modifier = Modifier
                     .size(120.dp)
@@ -142,6 +168,7 @@ fun SettingsScreen(
                     .clickable { showImageSourceDialog = true },
                 contentAlignment = Alignment.Center
             ) {
+                // `AsyncImage` (da biblioteca Coil) carrega a imagem da URI de forma assíncrona.
                 AsyncImage(
                     model = avatarUri,
                     contentDescription = "Avatar do Usuário",
@@ -197,6 +224,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.height(24.dp))
             Spacer(modifier = Modifier.height(12.dp))
 
+            // --- Seção Aparência ---
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -218,7 +246,6 @@ fun SettingsScreen(
                         )
                     }
 
-                    // Switch p/ a troca do tema
                     Switch(
                         checked = isDarkTheme,
                         onCheckedChange = { onThemeChange(it) },
@@ -241,6 +268,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Seção Dados da Aplicação ---
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -263,6 +291,7 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // --- Seção Sobre ---
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
