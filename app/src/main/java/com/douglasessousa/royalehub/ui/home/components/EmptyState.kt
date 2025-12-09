@@ -29,14 +29,14 @@ fun EmptyState(onButtonClick: () -> Unit) {
         Text(
             text = "Nenhum deck criado ainda",
             style = MaterialTheme.typography.titleMedium,
-            color = Color.White
+            color = MaterialTheme.colorScheme.surface
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "Comece criando seu primeiro deck para registrar suas partidas.",
             textAlign = TextAlign.Center,
             style = MaterialTheme.typography.bodyLarge,
-            color = TextWhite
+            color = MaterialTheme.colorScheme.secondary
         )
         Spacer(modifier = Modifier.height(24.dp))
         Button(
