@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.ui.theme.TextGray
 import com.douglasessousa.royalehub.ui.theme.TextWhite
 
+/*
+* Componente para qnd a Tela Home não tiver nenhum Deck
+*/
 @Composable
 fun EmptyState(onButtonClick: () -> Unit) {
     Column(
@@ -39,6 +42,7 @@ fun EmptyState(onButtonClick: () -> Unit) {
             color = MaterialTheme.colorScheme.secondary
         )
         Spacer(modifier = Modifier.height(24.dp))
+        // Botão para criar Deck
         Button(
             onClick = onButtonClick,
             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)

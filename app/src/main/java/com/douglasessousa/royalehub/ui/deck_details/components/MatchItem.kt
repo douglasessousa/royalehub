@@ -34,16 +34,22 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * Este componente representa uma única linha na lista de "Últimas Partidas".
+ */
 @Composable
 fun MatchItem(match: MatchResult, onDelete: () -> Unit) {
+
+    // Cores e ícones são definidas baseados no resultado
     val color = if (match.isWin) WinGreen else LossRed
     val icon = if (match.isWin) Icons.Default.EmojiEvents else Icons.Default.SentimentVeryDissatisfied
     val text = if (match.isWin) "Vitória" else "Derrota"
 
+    // Formatador de data (ex: "20 de Novembro às 14:30")
     val dateFormat = SimpleDateFormat("dd 'de' MMMM 'às' HH:mm", Locale("pt", "BR"))
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Row(

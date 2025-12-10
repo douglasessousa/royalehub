@@ -15,6 +15,11 @@ import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.ui.home.components.DeckItem
 import com.douglasessousa.royalehub.ui.home.components.EmptyState
 
+/**
+ * TELA INICIAL (Home)
+ *
+ * Esta é a tela principal onde o usuário vê seus decks criados.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -40,6 +45,7 @@ fun HomeScreen(
                 )
             )
         },
+        // Botão Flutuante (+) no canto inferior direito
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToCreateDeck,
@@ -54,21 +60,26 @@ fun HomeScreen(
 
         Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
             if (decksUiState.isEmpty()) {
+                // Se não houver decks, mostra a tela de "Comece aqui"
                 EmptyState(onNavigateToCreateDeck)
             } else {
+                // Se houver decks, mostra a lista
                 DeckList(decksState = decksUiState, onDeckClick = onNavigateToDeckDetails)
             }
         }
     }
 }
 
-
+/**
+ * Lista de Decks
+ */
 @Composable
 fun DeckList(decksState: List<DeckUiState>, onDeckClick: (Int) -> Unit) {
     LazyColumn(
         contentPadding = PaddingValues(top = 16.dp, bottom = 80.dp, start = 16.dp, end = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // Itera sobre a lista de decks e cria um Card para cada um
         items(decksState) { item ->
             DeckItem(item, onDeckClick)
         }

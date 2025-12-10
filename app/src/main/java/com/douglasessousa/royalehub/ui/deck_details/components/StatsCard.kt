@@ -26,6 +26,12 @@ import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
 import com.douglasessousa.royalehub.ui.theme.WinGreen
 
+/**
+ * O Gráfico de Estatísticas
+ *
+ * Este componente desenha o painel principal da tela de detalhes.
+ * Ele exibe o Win Rate de forma gráfica e os contadores absolutos.
+ */
 @Composable
 fun StatsCard(stats: DeckStats) {
     Card(
@@ -82,6 +88,10 @@ fun StatsCard(stats: DeckStats) {
     }
 }
 
+/**
+ * ITEM DE ESTATÍSTICA
+ * Pequeno componente reutilizável pra mostrar um número colorido com uma legenda em baixo.
+ */
 @Composable
 fun StatItem(count: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {

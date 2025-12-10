@@ -43,9 +43,11 @@ interface RoyaleDao {
     @Query("SELECT * FROM matches WHERE deckId = :deckId")
     fun getMatchesForDeck(deckId: Int): Flow<List<MatchResult>>
 
+    // Insere uma partida
     @Insert
     suspend fun insertMatch(match: MatchResult)
 
+    // Delete uma partida
     @Delete
     suspend fun deleteMatch(match: MatchResult)
 
@@ -53,21 +55,27 @@ interface RoyaleDao {
     @Query("DELETE FROM matches WHERE deckId = :deckId")
     suspend fun deleteMatchesByDeckId(deckId: Int)
 
+    // Pega todas as partidas
     @Query("SELECT * FROM matches")
     fun getAllMatches(): Flow<List<MatchResult>>
 
+    // Limpa todos os decks
     @Query("DELETE FROM decks")
     suspend fun deleteAllDecks()
 
+    // Limpa todas as partidas
     @Query("DELETE FROM matches")
     suspend fun deleteAllMatches()
 
+    // Insere ou atualiza o usuário
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertUser(user: User)
 
+    // Pega o usuário atual
     @Query("SELECT * FROM user_profile WHERE pk = 0")
     fun getUser(): Flow<User?>
-    
+
+    // Limpa todos os usuários
     @Query("DELETE FROM user_profile")
     suspend fun deleteAllUsers()
 }
