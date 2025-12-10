@@ -22,6 +22,7 @@ import com.douglasessousa.royalehub.ui.stats.components.DeckStatRow
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(viewModel: StatsViewModel) {
+    // Observa o flow de dados do viewmodel. A tela será recomposta quando os dados mudarem.
     val dashboardData by viewModel.dashboardData.collectAsState()
 
     Scaffold(
@@ -56,7 +57,6 @@ fun StatsScreen(viewModel: StatsViewModel) {
                     )
                 }
             } else {
-                // Gráfico de Barras
                 Card(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                     elevation = CardDefaults.cardElevation(4.dp),
@@ -95,6 +95,9 @@ fun StatsScreen(viewModel: StatsViewModel) {
     }
 }
 
+/**
+ * Renderiza um gráfico de barras.
+*/
 @Composable
 fun BarChart(data: List<DeckDashboardItem>) {
     Row(
@@ -116,6 +119,7 @@ fun BarChart(data: List<DeckDashboardItem>) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Lógica para evitar uma barra de altura zero, que seria invisível.
                 val barHeight = if (item.winRate == 0f) 0.02f else item.winRate
 
                 Box(
@@ -128,6 +132,7 @@ fun BarChart(data: List<DeckDashboardItem>) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
+                // Nome do deck na base da barra.
                 Text(
                     text = item.deckName,
                     style = MaterialTheme.typography.bodySmall,

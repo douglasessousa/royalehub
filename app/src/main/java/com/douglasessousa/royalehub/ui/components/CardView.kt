@@ -25,6 +25,7 @@ fun CardView(
             .aspectRatio(95f / 140f)
             .clickable(onClick = onClick)
     ) {
+        //SE A CARTA EXISTIR MOSTRA A CARTA
         if (card != null) {
             AsyncImage(
                 model = card.imageUrl,
@@ -32,7 +33,7 @@ fun CardView(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-        } else {
+        } else { //SE NÃO MOSTRA SÓ O CONTORNO
             Box(
                 modifier = Modifier
                     .fillMaxSize()

@@ -27,6 +27,9 @@ import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
 import com.douglasessousa.royalehub.ui.theme.WinGreen
 
+/* Mostra o nome do deck, o número total de partidas, uma barra de progresso
+   de vitórias/derrotas e a taxa de vitória percentual.
+*/
 @Composable
 fun DeckStatRow(item: DeckDashboardItem) {
     Card(

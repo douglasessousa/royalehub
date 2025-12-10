@@ -25,6 +25,7 @@ fun TowerView(
             .aspectRatio(95f / 140f)
             .clickable(onClick = onClick)
     ) {
+        //SE A TORRE EXISTIR MOSTRA A CARTA
         if (tower != null) {
             AsyncImage(
                 model = tower.imageUrl,
@@ -32,7 +33,7 @@ fun TowerView(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
             )
-        } else {
+        } else { //SE NÃO MOSTRA SÓ O CONTORNO
             Box(
                 modifier = Modifier
                     .fillMaxSize()
