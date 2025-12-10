@@ -27,12 +27,22 @@ import com.douglasessousa.royalehub.ui.components.TowerView
 import com.douglasessousa.royalehub.ui.deck.components.ItemInfoDialog
 import com.douglasessousa.royalehub.ui.deck.components.TowerItem
 
+/**
+ * Tela principal para a criação e edição de um novo deck.
+ *
+ *Ela é responsável por:
+ * - Exibir o nome do deck em um campo de texto.
+ * - Mostrar as cartas e torre selecionadas.
+ * - Apresentar uma lista de todas as cartas e torres disponíveis para seleção.
+ * - Gerenciar estados transitórios da UI, como a exibição de diálogos e o modo de troca de cartas.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateDeckScreen(
     viewModel: DeckViewModel,
     onBack: () -> Unit
 ) {
+    // Coleta os estados do ViewModel. A UI será recomposta automaticamente quando estes valores mudarem.
     val availableCards by viewModel.availableCards.collectAsState()
     val selectedCards by viewModel.selectedCards.collectAsState()
     val availableTowers by viewModel.availableTowers.collectAsState()
@@ -41,19 +51,22 @@ fun CreateDeckScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val saveError by viewModel.saveError.collectAsState()
 
-    var itemToShowInDialog by remember { mutableStateOf<Any?>(null) }
-    var cardForSwap by remember { mutableStateOf<Card?>(null) }
+    // Estados específicos da UI que não precisam viver no ViewModel
+    var itemToShowInDialog by remember { mutableStateOf<Any?>(null) } // Controla a exibição do diálogo de informações
+    var cardForSwap by remember { mutableStateOf<Card?>(null) } // Controla o "modo de troca" de cartas
     val gridState = rememberLazyGridState()
 
+    // Lógica de negócio derivada do estado: o botão Salvar só é ativo se as condições forem atendidas.
     val canSave = deckName.isNotBlank() && selectedCards.size == 8 && selectedTower != null
 
-    // Efeito p/ escrolar para o topo após fazer a troca da carta
+    // Um efeito que é executado quando `cardForSwap` muda. Usado para rolar a grid para o topo.
     LaunchedEffect(cardForSwap) {
         if (cardForSwap != null) {
             gridState.animateScrollToItem(index = 0)
         }
     }
 
+    // Exibe um diálogo de erro se a tentativa de salvar falhar.
     if (saveError != null) {
         AlertDialog(
             onDismissRequest = { viewModel.clearSaveError() },
@@ -67,6 +80,7 @@ fun CreateDeckScreen(
         )
     }
 
+    // Exibe o diálogo de informações da carta/torre quando o usuário clica em um item.
     if (itemToShowInDialog != null) {
         ItemInfoDialog(
             item = itemToShowInDialog!!,
@@ -74,13 +88,15 @@ fun CreateDeckScreen(
             isDeckFull = selectedCards.size == 8,
             isTowerSelected = { selectedTower == it },
             isAnyTowerSelected = selectedTower != null,
-            onDismiss = { itemToShowInDialog = null },
-            onConfirm = {
+            onDismiss = { itemToShowInDialog = null }, // Fecha o diálogo
+            onConfirm = { // Ação principal do diálogo
                 when (val item = itemToShowInDialog) {
                     is Card -> {
                         if (selectedCards.size >= 8 && !selectedCards.contains(item)) {
+                            // Se o deck está cheio e a carta não está nele, ativa o modo de troca.
                             cardForSwap = item
                         } else {
+                            // Caso contrário, apenas alterna a seleção da carta.
                             viewModel.toggleCardSelection(item)
                         }
                     }
@@ -110,6 +126,7 @@ fun CreateDeckScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            // Grid rolável que contém todos os elementos da tela para melhor performance.
             LazyVerticalGrid(
                 state = gridState,
                 columns = GridCells.Fixed(4),
@@ -117,6 +134,7 @@ fun CreateDeckScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.weight(1f)
             ) {
+                // Campo de texto para o nome do deck
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     OutlinedTextField(
                         value = deckName,
@@ -133,6 +151,7 @@ fun CreateDeckScreen(
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
+                // Seção que mostra as cartas já selecionadas pelo usuário
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Column {
                         AnimatedVisibility(visible = cardForSwap != null) {
@@ -156,20 +175,23 @@ fun CreateDeckScreen(
                     SelectedCardsRow(selectedCards) { clickedCard ->
                         if (cardForSwap != null) {
                             viewModel.swapCard(clickedCard, cardForSwap!!)
-                            cardForSwap = null // End swap mode
+                            cardForSwap = null // Desativa o modo de troca
                         } else {
+                            // Se não estiver no modo de troca, mostra informações da carta
                             itemToShowInDialog = clickedCard
                         }
                     }
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
+                // Seção que mostra a torre selecionada
                 item(span = { GridItemSpan(maxLineSpan) }) { SelectedTowerRow(selectedTower) { tower -> itemToShowInDialog = tower } }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(16.dp)) }
 
                 item(span = { GridItemSpan(maxLineSpan) }) { HorizontalDivider() }
                 item(span = { GridItemSpan(maxLineSpan) }) { Spacer(modifier = Modifier.height(8.dp)) }
 
+                // Indicador de carregamento enquanto as cartas são baixadas da API
                 if (isLoading) {
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(
@@ -182,6 +204,7 @@ fun CreateDeckScreen(
                         }
                     }
                 } else {
+                    // Listas de torres e cartas disponíveis para seleção
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Text(
                             text = "Escolha sua Torre",
@@ -224,6 +247,7 @@ fun CreateDeckScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Botão para finalizar e salvar o deck. Fica desabilitado até o deck ser válido.
             Button(
                 onClick = { viewModel.saveDeck(onSuccess = onBack) },
                 modifier = Modifier.fillMaxWidth().height(50.dp),
@@ -238,6 +262,9 @@ fun CreateDeckScreen(
     }
 }
 
+/**
+ * Composable que exibe as 8 cartas selecionadas em duas fileiras.
+ */
 @Composable
 fun SelectedCardsRow(selectedCards: List<Card>, onCardClick: (Card) -> Unit) {
     Column {
@@ -255,13 +282,18 @@ fun SelectedCardsRow(selectedCards: List<Card>, onCardClick: (Card) -> Unit) {
     }
 }
 
+/**
+ * Composable que exibe a torre selecionada, alinhada com a última carta da fileira.
+ * @param selectedTower A torre atualmente selecionada (pode ser nula).
+ * @param onTowerClick Callback invocado quando a torre é clicada.
+ */
 @Composable
 fun SelectedTowerRow(selectedTower: Tower?, onTowerClick: (Tower) -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        // Adicionar 3 edspaços invisíveis para a torre ficar na 4ª posição
+        // Adiciona 3 espaços invisíveis para empurrar a torre para a 4ª posição
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))
         Spacer(Modifier.width(75.dp))
@@ -269,6 +301,9 @@ fun SelectedTowerRow(selectedTower: Tower?, onTowerClick: (Tower) -> Unit) {
     }
 }
 
+/**
+ * Representa um único "espaço" para uma carta no deck selecionado.
+ */
 @Composable
 fun CardSlot(card: Card?, onClick: (Card?) -> Unit) {
     CardView(
@@ -279,6 +314,10 @@ fun CardSlot(card: Card?, onClick: (Card?) -> Unit) {
             .clip(RoundedCornerShape(8.dp))
     )
 }
+
+/**
+ * Representa o "espaço" para a torre no deck selecionado.
+ */
 @Composable
 fun TowerSlot(tower: Tower?, onClick: (Tower?) -> Unit) {
     TowerView(

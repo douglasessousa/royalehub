@@ -43,7 +43,9 @@ class MainActivity : ComponentActivity() {
 
         val app = application as RoyaleHubApp
 
-        // Setup do repositório para a Factory
+        // Criamos o repositório e a fábrica de ViewModels aqui.
+        // Passaremos essa 'viewModelFactory' para todas as telas, para que elas
+        // possam criar seus ViewModels com acesso aos dados.
         val repository = com.douglasessousa.royalehub.data.repository.RoyaleRepository(
             app.database.royaleDao(),
             app.apiService
@@ -53,16 +55,18 @@ class MainActivity : ComponentActivity() {
         setContent {
             // Detecta o tema do sistema
             val systemTheme = isSystemInDarkTheme()
+            // Variável de estado pra permitir que o usuário mude o tema manualmente.
             var isDarkTheme by remember { mutableStateOf(systemTheme) }
 
             RoyalehubTheme(darkTheme = isDarkTheme) {
+                // Sabe em que tela estamos e como ir para outra
                 val navController = rememberNavController()
 
-                // observa a rota atual
+                // Observa a rota atual para decidir se mostra a barra inferior
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
 
-                // onde a barra de navegação deve ser exibida
+                // Lista de telas onde a Barra de Navegação deve aparecer
                 val showBottomBar = currentRoute in listOf("home", "statistics", "settings")
 
                 Scaffold(
@@ -72,6 +76,7 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { innerPadding ->
+
                     Box(modifier = Modifier.fillMaxSize()) {
 
                         Image(
@@ -86,6 +91,7 @@ class MainActivity : ComponentActivity() {
                             startDestination = "home",
                             modifier = Modifier.padding(innerPadding)
                         ) {
+                            // --- Rota: HOME ---
                             composable("home") {
                                 val homeViewModel: HomeViewModel =
                                     viewModel(factory = viewModelFactory)
@@ -96,12 +102,14 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
+                            // --- Rota: ESTATÍSTICAS ---
                             composable("statistics") {
                                 val statsViewModel: StatsViewModel =
                                     viewModel(factory = viewModelFactory)
                                 StatsScreen(viewModel = statsViewModel)
                             }
 
+                            // --- Rota: CONFIGURAÇÕES ---
                             composable("settings") {
                                 val settingsViewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
                                 SettingsScreen(
@@ -112,6 +120,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
+                            // --- Rota: CRIAR DECK ---
                             composable("create_deck") {
                                 val deckViewModel: DeckViewModel =
                                     viewModel(factory = viewModelFactory)
@@ -121,10 +130,12 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
 
+                            // --- Rota: DETALHES DO DECK ---
                             composable(
                                 route = "deck_details/{deckId}",
                                 arguments = listOf(navArgument("deckId") { type = NavType.IntType })
                             ) { backStackEntry ->
+                                // Pega o ID passado na URL da navegação
                                 val deckId = backStackEntry.arguments?.getInt("deckId") ?: 0
                                 val detailsViewModel: DeckDetailsViewModel =
                                     viewModel(factory = viewModelFactory)

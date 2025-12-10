@@ -17,21 +17,28 @@ import com.douglasessousa.royalehub.ui.deck_details.components.AddMatchDialog
 import com.douglasessousa.royalehub.ui.deck_details.components.MatchItem
 import com.douglasessousa.royalehub.ui.deck_details.components.StatsCard
 
+/**
+ * Painel de Controle de um deck específico.
+ * Aqui o usuário pode analisar a performance (Win Rate), ver o histórico
+ * e registrar novas batalhas.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeckDetailsScreen(
-    deckId: Int,
+    deckId: Int, // O ID do deck q foi clicado na Home
     viewModel: DeckDetailsViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit // Ação pra voltar à tela anterior
 ) {
+    // Usa o ID recebido pra mandar o ViewModel buscar os dados no banco de dados.
     LaunchedEffect(deckId) {
         viewModel.loadDeck(deckId)
     }
 
     val deck by viewModel.deck.collectAsState()
-    val matches by viewModel.matches.collectAsState()
-    val stats by viewModel.stats.collectAsState()
+    val matches by viewModel.matches.collectAsState() // Lista de histórico
+    val stats by viewModel.stats.collectAsState() // Win Rate calculado
 
+    // Estado pra controlar a visibilidade do Popup de registrar partida
     var showAddMatchDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -55,6 +62,7 @@ fun DeckDetailsScreen(
                     }
                 },
                 actions = {
+                    // Botão de Excluir Deck
                     IconButton(onClick = { viewModel.deleteDeck(onDeleted = onBack) }) {
                         Icon(
                             Icons.Default.Delete,
@@ -67,6 +75,7 @@ fun DeckDetailsScreen(
             )
         }
     ) { padding ->
+        // Enquanto o deck n carrega do banco, mostramos um spinner.
         if (deck == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
@@ -74,6 +83,7 @@ fun DeckDetailsScreen(
         } else {
             Column(modifier = Modifier.padding(padding).padding(16.dp)) {
 
+                // Gráfico de Estatísticas
                 StatsCard(stats)
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -101,6 +111,7 @@ fun DeckDetailsScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Lista de Histórico
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize(),
@@ -118,7 +129,7 @@ fun DeckDetailsScreen(
         AddMatchDialog (
             onDismiss = { showAddMatchDialog = false },
             onConfirm = { isWin ->
-                viewModel.addMatch(isWin)
+                viewModel.addMatch(isWin) // Avisa o ViewModel
                 showAddMatchDialog = false
             }
         )

@@ -2,6 +2,7 @@ package com.douglasessousa.royalehub.ui.settings
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -42,39 +43,50 @@ fun SettingsScreen(
     onThemeChange: (Boolean) -> Unit,
     onSave: () -> Unit
 ) {
+    // Coleta os estados do viewmodel para que a ui se atualize automaticamente.
     val nickname by viewModel.nickname.collectAsState()
     val id by viewModel.id.collectAsState()
     val avatarUri by viewModel.avatarUri.collectAsState()
 
     var showImageSourceDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+    var tempImageUri by remember { mutableStateOf<Uri?>(null) } // Armazena a uri temporária da foto tirada pela câmera.
 
+    // Cria uma uri de arquivo segura para a câmera salvar a foto.
     fun createImageUri(context: Context): Uri {
         val file = File.createTempFile("JPEG_${System.currentTimeMillis()}_", ".jpg", context.externalCacheDir)
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
 
+    // Launcher para o seletor de fotos moderno do android (galeria).
     val pickMediaLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) {
+            // Pede ao sistema para nos dar permissão de leitura persistente para esta URI.
+            val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            context.contentResolver.takePersistableUriPermission(uri, flag)
             viewModel.onAvatarChange(uri)
         }
     }
 
+    // Launcher para a câmera.
     val takePictureLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.TakePicture()) { success ->
         if (success) {
+            // A foto foi salva na `tempimageuri`, agora passamos essa uri para o viewmodel.
             tempImageUri?.let { viewModel.onAvatarChange(it) }
         }
     }
 
+    // Launcher para pedir a permissão da câmera em tempo de execução.
     val cameraPermissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) { isGranted ->
         if (isGranted) {
+            // Se a permissão for concedida, cria uma nova uri e abre a câmera.
             val newUri = createImageUri(context)
             tempImageUri = newUri
             takePictureLauncher.launch(newUri)
         }
     }
 
+    // Diálogo que pergunta ao usuário se ele quer usar a câmera ou a galeria.
     if (showImageSourceDialog) {
         AlertDialog(
             onDismissRequest = { showImageSourceDialog = false },
@@ -84,13 +96,14 @@ fun SettingsScreen(
                 TextButton(
                     onClick = {
                         showImageSourceDialog = false
+                        // Verifica se a permissão da câmera já foi concedida.
                         when (PackageManager.PERMISSION_GRANTED) {
                             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) -> {
                                 val newUri = createImageUri(context)
                                 tempImageUri = newUri
                                 takePictureLauncher.launch(newUri)
                             }
-                            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+                            else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA) // PEDE A PERMISSÃO.
                         }
                     }
                 ) {
@@ -142,6 +155,7 @@ fun SettingsScreen(
                     .clickable { showImageSourceDialog = true },
                 contentAlignment = Alignment.Center
             ) {
+                // `AsyncImage` carrega a imagem da uri de forma assíncrona.
                 AsyncImage(
                     model = avatarUri,
                     contentDescription = "Avatar do Usuário",
@@ -199,7 +213,7 @@ fun SettingsScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Row(
@@ -218,7 +232,6 @@ fun SettingsScreen(
                         )
                     }
 
-                    // Switch p/ a troca do tema
                     Switch(
                         checked = isDarkTheme,
                         onCheckedChange = { onThemeChange(it) },
@@ -243,7 +256,7 @@ fun SettingsScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
@@ -265,7 +278,7 @@ fun SettingsScreen(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
