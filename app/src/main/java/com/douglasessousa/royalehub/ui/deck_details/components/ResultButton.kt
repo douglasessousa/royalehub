@@ -20,6 +20,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.foundation.BorderStroke
 
+/**
+ * BOTÃO DE RESULTADO
+ *
+ * Este componente cria um botão quadrado grande, usado dentro do modal de registro.
+ * Ele foi desenhado para ser flexível: a cor, o ícone e o texto são passados
+ * como parâmetros, permitindo que o mesmo código desenhe tanto o botão
+ * de "Vitória" (Verde) quanto o de "Derrota" (Vermelho).
+ *
+ * @param text O texto a ser exibido (ex: "Vitória").
+ * @param icon O ícone vetorial.
+ * @param color A cor base do botão (afeta o fundo, borda e texto).
+ * @param onClick A função a ser executada quando o usuário toca no botão.
+ */
 @Composable
 fun ResultButton(
     text: String,

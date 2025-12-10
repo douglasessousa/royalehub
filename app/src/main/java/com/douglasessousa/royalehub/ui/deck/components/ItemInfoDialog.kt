@@ -29,9 +29,16 @@ import com.douglasessousa.royalehub.data.model.Card
 import com.douglasessousa.royalehub.data.model.Tower
 import com.douglasessousa.royalehub.ui.theme.LossRed
 
+/**
+ * Diálogo de informações do item
+ *
+ * Este componente aceita um item genérico (`Any`).
+ * Ele verifica se o item é uma Carta ou uma Torre e adapta o layout
+ * e as ações (botões) automaticamente.
+ */
 @Composable
 fun ItemInfoDialog(
-    item: Any,
+    item: Any, // pode ser Card ou Tower
     isCardInDeck: (Card) -> Boolean,
     isDeckFull: Boolean,
     isTowerSelected: (Tower) -> Boolean,
@@ -41,25 +48,27 @@ fun ItemInfoDialog(
 ) {
     val title: String
     val imageUrl: String
-    val elixir: Int?
+    val elixir: Int? // Pode ser nulo (Torres n têm elixir)
     val rarity: String
     val buttonText: String
-    val isDestructiveAction: Boolean
+    val isDestructiveAction: Boolean // Define se o botão deve ser vermelho
 
+    // O 'when' decide como preencher as variáveis baseando-se no tipo do item
     when (item) {
         is Card -> {
             title = item.name
             imageUrl = item.imageUrl
             elixir = item.elixir
             rarity = item.rarity
+            // Lógica do botão: Remover, Trocar ou Adicionar
             val isThisCardInDeck = isCardInDeck(item)
             buttonText = if (isThisCardInDeck) "Remover do Deck" else if (isDeckFull) "Trocar Carta" else "Adicionar ao Deck"
-            isDestructiveAction = isThisCardInDeck
+            isDestructiveAction = isThisCardInDeck // Se for remover, é "destrutivo"
         }
         is Tower -> {
             title = item.name
             imageUrl = item.imageUrl
-            elixir = null
+            elixir = null // Torres n gastam elixir
             rarity = item.rarity
             val isThisTowerSelected = isTowerSelected(item)
             buttonText = when {
@@ -69,19 +78,18 @@ fun ItemInfoDialog(
             }
             isDestructiveAction = isThisTowerSelected
         }
-        else -> return
+        else -> return // Se n for Card nem Tower, n mostra nada
     }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         containerColor = MaterialTheme.colorScheme.surface,
-        title = null,
+        title = null, // Título padrão removido
         text = {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // Título
                 Text(
                     text = title,
                     style = MaterialTheme.typography.headlineSmall,
@@ -92,7 +100,6 @@ fun ItemInfoDialog(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Imagem
                 AsyncImage(
                     model = imageUrl,
                     contentDescription = title,
@@ -107,17 +114,17 @@ fun ItemInfoDialog(
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Elixir
+                    // Só mostra a gota de Elixir se n for nulo (ou seja, se for Carta)
                     if (elixir != null) {
                         AttributeBadge(
                             icon = Icons.Default.WaterDrop,
-                            iconTint = Color(0xFF9C27B0), // Roxo Elixir
+                            iconTint = Color(0xFF9C27B0),
                             text = "Elixir: $elixir"
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                     }
 
-                    // Raridade
+                    // Badge de Raridade
                     val rarityColor = getRarityColor(rarity)
                     AttributeBadge(
                         icon = Icons.Default.Star,
@@ -135,8 +142,7 @@ fun ItemInfoDialog(
                     onDismiss()
                 },
                 colors = ButtonDefaults.buttonColors(
-                    // se for remover, botão vermelho
-                    // se for adicionar, botão primário
+                    // Vermelho se for remover, Primary se for adicionar
                     containerColor = if (isDestructiveAction) LossRed else MaterialTheme.colorScheme.primary
                 ),
                 modifier = Modifier.fillMaxWidth()
@@ -147,7 +153,9 @@ fun ItemInfoDialog(
     )
 }
 
-
+/**
+ * Função auxiliar q mapeia o nome da raridade pra a cor oficial do jogo.
+ */
 fun getRarityColor(rarity: String): Color {
     return when (rarity.lowercase()) {
         "comum", "common" -> Color(0xFF42A5F5) // Azul

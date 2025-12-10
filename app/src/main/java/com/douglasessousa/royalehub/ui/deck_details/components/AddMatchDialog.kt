@@ -21,11 +21,17 @@ import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.TextGray
 import com.douglasessousa.royalehub.ui.theme.WinGreen
 
+/**
+ * Este componente é um "Modal" (janela flutuante) personalizado.
+ *
+ * @param onDismiss Função chamada pra fechar o diálogo (clicar fora ou cancelar).
+ * @param onConfirm Função q devolve o resultado: 'true' (Vitória) ou 'false' (Derrota).
+ */
 @Composable
 fun AddMatchDialog(onDismiss: () -> Unit, onConfirm: (Boolean) -> Unit) {
     AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = onDismiss, // Fecha se o usuário clicar fora da caixa
+        containerColor = MaterialTheme.colorScheme.surface,
         title = {
             Text(
                 text = "Registrar Partida",
@@ -70,6 +76,7 @@ fun AddMatchDialog(onDismiss: () -> Unit, onConfirm: (Boolean) -> Unit) {
                 }
             }
         },
+        // Botões padrões vazios, já q foi criado os próprios.
         confirmButton = {},
         dismissButton = {}
     )

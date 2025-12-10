@@ -20,10 +20,15 @@ import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.Purple
 import com.douglasessousa.royalehub.ui.theme.WinGreen
 
+/**
+ * Mostra o resumo do deck, incluindo nome, custo de elixir,
+ * win rate e as imagens das cartas.
+ */
 @Composable
 fun DeckItem(item: DeckUiState, onClick: (Int) -> Unit) {
     val deck = item.deck
 
+    // Define a cor da "etiqueta" de Win Rate:
     val badgeColor = when {
         item.totalMatches == 0 -> Color.LightGray
         item.winRate >= 0.5 -> WinGreen
@@ -43,12 +48,14 @@ fun DeckItem(item: DeckUiState, onClick: (Int) -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // Nome + Elixir
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = deck.name,
                         style = MaterialTheme.typography.titleMedium,
                         maxLines = 1
                     )
+                    // Ícone Roxo + Valor
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.WaterDrop,
@@ -66,6 +73,7 @@ fun DeckItem(item: DeckUiState, onClick: (Int) -> Unit) {
                     }
                 }
 
+                // Badge de Win Rate
                 Surface(
                     color = badgeColor.copy(alpha = 0.1f),
                     shape = RoundedCornerShape(50),
@@ -85,6 +93,7 @@ fun DeckItem(item: DeckUiState, onClick: (Int) -> Unit) {
             HorizontalDivider(color = Color.LightGray.copy(alpha = 0.3f))
             Spacer(modifier = Modifier.height(12.dp))
 
+            // O 'SpaceBetween' garante q as 8 cartas + 1 torre ocupem toda a largura disponível.
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -106,6 +115,9 @@ fun DeckItem(item: DeckUiState, onClick: (Int) -> Unit) {
     }
 }
 
+/**
+ * Cria uma caixinha padronizada para exibir a imagem de uma carta ou torre.
+ */
 @Composable
 fun MiniCardImage(imageUrl: String, contentDesc: String) {
     Box(
