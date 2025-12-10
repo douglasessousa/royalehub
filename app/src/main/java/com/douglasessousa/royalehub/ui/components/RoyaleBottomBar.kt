@@ -26,7 +26,7 @@ fun RoyaleBottomBar(navController: NavController) {
 
         items.forEach { (route, label, icon) ->
             val isSelected = currentRoute == route
-
+            //CADA ITEM DA NAVBAR TEM UMA ROTA, LABEL E ICONE
             NavigationBarItem(
                 icon = { Icon(icon, contentDescription = label) },
                 label = {
@@ -37,7 +37,7 @@ fun RoyaleBottomBar(navController: NavController) {
                 },
                 selected = isSelected,
                 onClick = {
-                    if (currentRoute != route) {
+                    if (currentRoute != route) { //CHECKA SE O USUÁRIO JÁ NÃO SE ENCONTRA NA TELA DO BOTÃO QUE ELE CLICOU
                         navController.navigate(route) {
                             popUpTo("home") { saveState = true }
                             launchSingleTop = true

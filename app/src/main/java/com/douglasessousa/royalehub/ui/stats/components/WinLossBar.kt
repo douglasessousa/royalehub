@@ -15,10 +15,14 @@ import androidx.compose.ui.unit.dp
 import com.douglasessousa.royalehub.ui.theme.LossRed
 import com.douglasessousa.royalehub.ui.theme.WinGreen
 
-// Barra horizontal
+/**
+ * Renderiza uma barra de progresso horizontal para visualizar
+ * a proporção de vitórias e derrotas.
+*/
 @Composable
 fun WinLossBar(wins: Int, losses: Int) {
     val total = wins + losses
+    // Não renderiza nada se não houver partidas para evitar divisão por zero e elementos vazios.
     if (total == 0) return
 
     Row(

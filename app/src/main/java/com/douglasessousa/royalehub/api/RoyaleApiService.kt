@@ -7,9 +7,11 @@ import retrofit2.http.GET
 
 interface RoyaleApiService {
 
+// Busca todas as cartas na api
     @GET("cards")
     suspend fun getAllCards(): List<Card>
 
+// Busca todas as torres na api
     @GET("towers")
     suspend fun getAllTowers(): List<Tower>
 }
